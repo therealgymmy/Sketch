@@ -6,6 +6,11 @@ JC = javac
 	$(JC) $(JFLAGS) $*.java
 
 CLASSES = \
+		  sketch/controller/Controller.java \
+		  sketch/model/Model.java \
+		  sketch/view/MouseController.java \
+		  sketch/view/Toolbar.java \
+		  sketch/view/View.java \
 		  sketch/Main.java
 
 default: classes
@@ -17,3 +22,6 @@ run: default
 
 clean:
 	$(RM) sketch/*.class
+	$(RM) sketch/controller/*.class
+	$(RM) sketch/model/*.class
+	$(RM) sketch/view/*.class

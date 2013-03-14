@@ -4,16 +4,29 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import sketch.common.*;
 import sketch.view.*;
 
 public class Toolbar extends JPanel {
 
-    private View   view_;
+    private View view_;
 
     public Toolbar (View view) {
         view_ = view;
 
         layoutView();
+    }
+
+    public void drawButtonPressed () {
+        view_.enableDraw();
+    }
+
+    public void eraseButtonPressed () {
+        view_.enableErase();
+    }
+
+    public void selectionButtonPressed () {
+        view_.enableSelection();
     }
 
     // Set up all the buttons in the toolbar
@@ -24,29 +37,32 @@ public class Toolbar extends JPanel {
         JToolBar toolbar = new JToolBar();
         add(toolbar, BorderLayout.PAGE_START);
 
-        // First button
-        button = new JButton("Button 1");
+        // Draw button
+        button = new JButton("Draw");
         button.addActionListener(new ActionListener () {
             public void actionPerformed (ActionEvent e) {
-                System.out.println("Button 1 was clicked!");
+                Log.debug("Draw button was clicked!");
+                drawButtonPressed();
             }
         });
         toolbar.add(button);
 
-        // Second button
-        button = new JButton("Button 2");
+        // Selection button
+        button = new JButton("Erase");
         button.addActionListener(new ActionListener () {
             public void actionPerformed (ActionEvent e) {
-                System.out.println("Button 2 was clicked!");
+                Log.debug("Erase button was clicked!");
+                eraseButtonPressed();
             }
         });
         toolbar.add(button);
 
-        // Third button
-        button = new JButton("Button 3");
+        // Selection button
+        button = new JButton("Selection");
         button.addActionListener(new ActionListener () {
             public void actionPerformed (ActionEvent e) {
-                System.out.println("Button 3 was clicked!");
+                Log.debug("Selection button was clicked!");
+                selectionButtonPressed();
             }
         });
         toolbar.add(button);

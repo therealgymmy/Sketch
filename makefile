@@ -12,6 +12,7 @@ CLASSES = \
 		  sketch/model/IModel.java \
 		  sketch/model/LineComponent.java \
 		  sketch/model/Model.java \
+		  sketch/model/TimeLine.java \
 		  sketch/view/IView.java \
 		  sketch/view/MouseController.java \
 		  sketch/view/Toolbar.java \

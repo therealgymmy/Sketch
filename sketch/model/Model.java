@@ -15,6 +15,7 @@ public class Model extends    Object
 
     private Controller controller_;
 
+    private TimeLine                  timeline_;
     private LineComponent             curLineObject_;
     private LinkedList<LineComponent> lineObjects_;
     private Polygon                   selection_;
@@ -27,9 +28,26 @@ public class Model extends    Object
         controller_.setModel(this);
 
         // initialize members
+        timeline_      = new TimeLine(this, controller_);
         lineObjects_   = new LinkedList<LineComponent>();
         curLineObject_ = new LineComponent();
         selection_     = new Polygon();
+    }
+
+    public void startAnimation () {
+        timeline_.startRecord();
+    }
+
+    public void stopAnimation () {
+        timeline_.stopRecord();
+    }
+
+    public void enablePlayback () {
+        timeline_.startPlay();
+    }
+
+    public void setLineObjects (LinkedList<LineComponent> objects) {
+        lineObjects_ = objects;
     }
 
     // Get the selection path

@@ -62,15 +62,35 @@ public class View extends    JPanel
                 "ctrl_a_down");
         Action down_action = new AbstractAction () {
             public void actionPerformed(ActionEvent e) {
-                if (!mController_.getAnimate()) {
-                    mController_.setAnimate(true);
+                if (!mController_.getAnimate() &&
+                    mController_.getState()
+                    == MouseController.State.SELECTION) {
+                    controller_.enableAnimation();
                 }
-                else {
-                    mController_.setAnimate(false);
+                else if (mController_.getAnimate() &&
+                         mController_.getState()
+                         == MouseController.State.ANIMATE) {
+                    controller_.disableAnimation();
                 }
             }
         };
         getActionMap().put("ctrl_a_down", down_action);
+
+        getInputMap().put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                                       InputEvent.CTRL_DOWN_MASK),
+                "ctrl_p_down");
+        Action play_action = new AbstractAction () {
+            public void actionPerformed(ActionEvent e) {
+                controller_.playAnimation();
+            }
+        };
+        getActionMap().put("ctrl_p_down", play_action);
+    }
+
+    // Enable animate mode
+    public void enableAnimation () {
+        mController_.setState(MouseController.State.ANIMATE);
     }
 
     // Ask the system to repaint

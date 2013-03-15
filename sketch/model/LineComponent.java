@@ -13,6 +13,25 @@ public class LineComponent {
     private LinkedList<Line2D> lines_ = new LinkedList<Line2D>();
     private boolean            isSelected_;
 
+    // Return a copy of this line object
+    public LineComponent copy () {
+        LineComponent c = new LineComponent();
+
+        // AffineTransform
+        c.trans_ = (AffineTransform)trans_.clone();
+
+        // Copy over all the lines
+        for (Line2D line : lines_) {
+            line = (Line2D)line.clone();
+            c.lines_.add(line);
+        }
+
+        // isSelected
+        c.isSelected_ = isSelected_;
+
+        return c;
+    }
+
     public boolean isSelected () {
         return isSelected_;
     }
@@ -105,7 +124,8 @@ public class LineComponent {
         g2d.setTransform(backupTrans);
     }
 
-    // Move from start to end
+    // Move from start to end and
+    // create a new AffineTransform
     public void move (Point2D start, Point2D end) {
         double dx = end.getX() - start.getX();
         double dy = end.getY() - start.getY();

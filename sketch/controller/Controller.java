@@ -29,6 +29,25 @@ public class Controller extends Object
         model_ = model;
     }
 
+    // --- Both View and Controller Related Functions ---/
+
+    // Enable animate recording
+    public void enableAnimation () {
+        view_.enableAnimation();
+        model_.startAnimation();
+    }
+
+    // Disable animate recording
+    public void disableAnimation () {
+        view_.enableSelection();
+        model_.stopAnimation();
+    }
+
+    // Playback previous recorded animation
+    public void playAnimation () {
+        model_.enablePlayback();
+    }
+
     // --- View Related Functions --- //
     // Refresh
     @Override

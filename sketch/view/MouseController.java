@@ -38,15 +38,8 @@ public class MouseController extends MouseInputAdapter
         return state_ == State.ANIMATE;
     }
 
-    public void setAnimate (boolean cond) {
-        if (cond && state_ == State.SELECTION) {
-            state_ = State.ANIMATE;
-            Log.debug("Animation enabled", 2);
-        }
-        else if (!cond && state_ == State.ANIMATE) {
-            state_ = State.SELECTION;
-            Log.debug("Animation disabled", 2);
-        }
+    public State getState () {
+        return state_;
     }
 
     public void setState (State state) {

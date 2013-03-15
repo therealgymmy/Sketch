@@ -19,14 +19,17 @@ public class Toolbar extends JPanel {
 
     public void drawButtonPressed () {
         view_.enableDraw();
+        view_.requestFocusInWindow();
     }
 
     public void eraseButtonPressed () {
         view_.enableErase();
+        view_.requestFocusInWindow();
     }
 
     public void selectionButtonPressed () {
         view_.enableSelection();
+        view_.requestFocusInWindow();
     }
 
     // Set up all the buttons in the toolbar
@@ -47,7 +50,7 @@ public class Toolbar extends JPanel {
         });
         toolbar.add(button);
 
-        // Selection button
+        // Erase button
         button = new JButton("Erase");
         button.addActionListener(new ActionListener () {
             public void actionPerformed (ActionEvent e) {
@@ -66,8 +69,6 @@ public class Toolbar extends JPanel {
             }
         });
         toolbar.add(button);
-
-        view_.add(this);
     }
 
 }

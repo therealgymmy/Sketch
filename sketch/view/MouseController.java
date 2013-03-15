@@ -7,32 +7,53 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import sketch.common.*;
+import sketch.model.*;
 
 // Mouse Controller responsible for dragging/clicking
-public class MouseController extends MouseInputAdapter {
+public class MouseController extends MouseInputAdapter
+                             implements KeyListener {
 
     // Describes the state the user interaction is in
     public enum State {
         DRAW,
         ERASE,
         SELECTION,
-        SELECTION_DRAG
+        ANIMATE,
     }
 
-    private Drawable view_;
+    private IView  view_;
+    private IModel controller_;
 
-    private State state_ = State.DRAW;
-    private Point2D          curLoc_;
+    private State   state_   = State.DRAW;
+    private Point2D curLoc_;
 
-    MouseController (View view) {
+    MouseController (IView view, IModel controller) {
         super();
-        view_ = view;
+
+        view_       = view;
+        controller_ = controller;
+    }
+
+    public boolean getAnimate () {
+        return state_ == State.ANIMATE;
+    }
+
+    public void setAnimate (boolean cond) {
+        if (cond && state_ == State.SELECTION) {
+            state_ = State.ANIMATE;
+            Log.debug("Animation enabled", 2);
+        }
+        else if (!cond && state_ == State.ANIMATE) {
+            state_ = State.SELECTION;
+            Log.debug("Animation disabled", 2);
+        }
     }
 
     public void setState (State state) {
         state_ = state;
     }
 
+    @Override
     public void mousePressed (MouseEvent e) {
         Log.debug("Mouse Pressed --> X: " +
                   e.getX() + " Y: " + e.getY(), 1);
@@ -45,14 +66,17 @@ public class MouseController extends MouseInputAdapter {
                 erase_mousePressed(e);
                 break;
             case SELECTION:
+                selection_mousePressed(e);
                 break;
-            case SELECTION_DRAG:
+            case ANIMATE:
+                animate_mousePressed(e);
                 break;
         }
 
         view_.updateView();
     }
 
+    @Override
     public void mouseReleased (MouseEvent e) {
         Log.debug("Mouse Released --> X: " +
                   e.getX() + " Y: " + e.getY(), 1);
@@ -64,17 +88,20 @@ public class MouseController extends MouseInputAdapter {
             case ERASE:
                 break;
             case SELECTION:
+                selection_mouseReleased(e);
                 break;
-            case SELECTION_DRAG:
+            case ANIMATE:
                 break;
         }
 
         view_.updateView();
     }
 
+    @Override
     public void mouseMoved (MouseEvent e) {
     }
 
+    @Override
     public void mouseDragged (MouseEvent e) {
         Log.debug("Mouse Dragged --> X: " +
                   e.getX() + " Y: " + e.getY(), 1);
@@ -87,26 +114,44 @@ public class MouseController extends MouseInputAdapter {
                 erase_mouseDragged(e);
                 break;
             case SELECTION:
+                selection_mouseDragged(e);
                 break;
-            case SELECTION_DRAG:
+            case ANIMATE:
+                animate_mouseDragged(e);
                 break;
         }
 
         view_.updateView();
     }
 
+    @Override
+    public void keyPressed (KeyEvent e) {
+        Log.debug("Key Pressed --> " + e, 2);
+    }
+
+    @Override
+    public void keyTyped (KeyEvent e) {
+        Log.debug("Key Typed --> " + e, 2);
+    }
+
+    @Override
+    public void keyReleased (KeyEvent e) {
+        Log.debug("Key Released --> " + e, 2);
+    }
+
     // Update current mouse location
+    // and add new line object
     public void draw_mousePressed (MouseEvent e) {
         Point2D newLoc = new Point2D.Double();
         newLoc.setLocation(e.getX(), e.getY());
         curLoc_ = newLoc;
-        view_.addNewObject();
+        controller_.addNewObject();
     }
 
     // Form a complete object out of the lines drawn
     // between mouse press and release
     public void draw_mouseReleased (MouseEvent e) {
-        view_.finalizeNewObject();
+        controller_.finalizeNewObject();
     }
 
     // Draw a line between previous and new mouse locations,
@@ -116,7 +161,7 @@ public class MouseController extends MouseInputAdapter {
         newLoc.setLocation(e.getX(), e.getY());
 
         // Draw a new line
-        view_.addLine(curLoc_, newLoc);
+        controller_.addLine(curLoc_, newLoc);
 
         curLoc_ = newLoc;
     }
@@ -128,7 +173,7 @@ public class MouseController extends MouseInputAdapter {
         curLoc_ = newLoc;
 
         // Pass in a point
-        view_.eraseLine(curLoc_);
+        controller_.eraseLine(curLoc_);
     }
 
     // Erase a line that the line it draws crosses
@@ -137,7 +182,52 @@ public class MouseController extends MouseInputAdapter {
         newLoc.setLocation(e.getX(), e.getY());
 
         // Pass in start and end of a line
-        view_.eraseLine(curLoc_, newLoc);
+        controller_.eraseLine(curLoc_, newLoc);
+
+        curLoc_ = newLoc;
+    }
+
+    // Update current mouse location
+    // and prepare for selection
+    public void selection_mousePressed (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+        curLoc_ = newLoc;
+        controller_.addNewSelection();
+    }
+
+    // Finalize a selection
+    public void selection_mouseReleased (MouseEvent e) {
+        controller_.encloseSelection();
+    }
+
+    // Extend the selection path
+    // and update current mouse location
+    public void selection_mouseDragged (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+
+        // Draw a new line
+        controller_.extendSelection(curLoc_, newLoc);
+
+        curLoc_ = newLoc;
+    }
+
+    // Update current mouse location
+    // and prepare for animation
+    public void animate_mousePressed (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+        curLoc_ = newLoc;
+    }
+
+    // Move the selected objects
+    // and update the timeline
+    public void animate_mouseDragged (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+
+        controller_.move(curLoc_, newLoc);
 
         curLoc_ = newLoc;
     }

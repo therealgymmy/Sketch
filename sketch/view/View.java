@@ -18,6 +18,7 @@ public class View extends    JPanel
 
     private MouseController mController_;
     private Toolbar         toolbar_;
+    private Slider          slider_;
 
     public View (Controller controller) {
         super();
@@ -36,14 +37,16 @@ public class View extends    JPanel
 
     // Initialize view layout and view components
     private void layoutView () {
-        setSize(800, 600);
-        setLayout(new SpringLayout());
+        setSize(1024, 768);
+        setLayout(new BorderLayout());
 
         // Initialize components
-        toolbar_ = new Toolbar(this);
+        toolbar_ = new Toolbar(this, controller_);
+        slider_  = new Slider(this, controller_);
 
         // Add components to view
-        add(toolbar_);
+        add(toolbar_, BorderLayout.PAGE_START);
+        add(slider_, BorderLayout.PAGE_END);
     }
 
     // Register event controllers for mouse clicks and motion
@@ -93,6 +96,26 @@ public class View extends    JPanel
         mController_.setState(MouseController.State.ANIMATE);
     }
 
+    // Set Slider length
+    public void setSliderLength (int length) {
+        slider_.setSliderLength(length);
+    }
+
+    // Set Slider Pointer position
+    public void setSliderPointerPosition (int pos) {
+        slider_.setPointerPosition(pos);
+    }
+
+    // Enable play button
+    public void enablePlayButton () {
+        slider_.enablePlayButton();
+    }
+
+    // Enable pause button
+    public void enablePauseButton () {
+        slider_.enablePauseButton();
+    }
+
     // Ask the system to repaint
     @Override
     public void updateView () {
@@ -115,6 +138,12 @@ public class View extends    JPanel
     @Override
     public void enableSelection () {
         mController_.setState(MouseController.State.SELECTION);
+    }
+
+    // Enable playback mode
+    @Override
+    public void enablePlayback () {
+        mController_.setState(MouseController.State.PLAYBACK);
     }
 
     // Paint the entire view
@@ -144,7 +173,9 @@ public class View extends    JPanel
         LinkedList<LineComponent> lineObjects
             = controller_.getLineObjects();
         for (LineComponent lineObject : lineObjects) {
-            if (lineObject.isSelected()) {
+            if (lineObject.isSelected() &&
+                mController_.getState()
+                == MouseController.State.SELECTION) {
                 g2d.setStroke(selectedStroke);
             }
             lineObject.paint(g2d);

@@ -63,6 +63,8 @@ public class TimeLine {
 
                 // Save one frame of the actions of the objects
                 saveFrame();
+
+                controller_.updateViewSetting();
             }
         };
     }
@@ -76,16 +78,39 @@ public class TimeLine {
 
                 // Load up next frame and update the view
                 if (playFrameIndex_ < frames_.size()) {
-                    Frame frame = frames_.get(playFrameIndex_);
+                    loadFrame(playFrameIndex_);
                     ++playFrameIndex_;
-                    loadFrame(frame);
+                    controller_.updateViewSetting();
                     controller_.updateView();
                 }
                 else {
                     stopPlay();
+                    playFrameIndex_ = 0;
+                    controller_.updateViewSetting();
+                    controller_.updateView();
                 }
             }
         };
+    }
+
+    // Find out if the playTimer is running
+    public boolean isPlaying () {
+        return playTimer_.isRunning();
+    }
+
+    // Get current frame index
+    public int getPlayFrameIndex () {
+        return playFrameIndex_;
+    }
+
+    // Get number of frames
+    public int getFrameLength () {
+        return frames_.size();
+    }
+
+    // Set playFrameIndex
+    public void setPlayFrameIndex (int index) {
+        playFrameIndex_ = index;
     }
 
     // Save one frame of actions of the objects
@@ -96,13 +121,22 @@ public class TimeLine {
             LineComponent newLineObj = lineObj.copy();
             frame.objects_.add(newLineObj);
         }
-        frames_.add(frame);
+
+        ListIterator frameItr = frames_.listIterator(playFrameIndex_);
+        if (frameItr.hasNext()) {
+            frameItr.add(frame);
+        }
+        else {
+            frames_.add(frame);
+        }
+
+        ++playFrameIndex_;
     }
 
     // Load one fram of actions of the objects
-    public void loadFrame (Frame frame) {
-        Frame f = frame.copy();
-        model_.setLineObjects(f.objects_);
+    public void loadFrame (int index) {
+        Frame frame = frames_.get(index);
+        model_.setLineObjects(frame.objects_);
     }
 
     // Reset the timer according to record interval and action
@@ -142,7 +176,6 @@ public class TimeLine {
     public void stopPlay () {
         Log.debug("Playback completed!", 2);
 
-        playFrameIndex_ = 0;
         playTimer_.stop();
     }
 

@@ -46,13 +46,45 @@ public class Controller extends Object
     // Playback previous recorded animation
     public void playAnimation () {
         model_.enablePlayback();
+        view_.enablePlayback();
+    }
+
+    // Pause Playback
+    public void pauseAnimation () {
+        model_.pausePlayback();
+        view_.enablePlayButton();
     }
 
     // --- View Related Functions --- //
     // Refresh
     @Override
     public void updateView () {
-        view_.updateView();
+        if (model_.getFrameLength() > 0) {
+            view_.updateView();
+        }
+    }
+
+    // Update view settings
+    public void updateViewSetting () {
+        if (model_.getFrameLength() > 0) {
+            // Update slider length
+            int size = model_.getFrameLength();
+            view_.setSliderLength(size - 1);
+
+            // Update slider pointer position
+            int pos = model_.getPlayFrameIndex();
+            view_.setSliderPointerPosition(pos);
+
+            // Update play button status
+            if (model_.isPlaying()) {
+                view_.enablePauseButton();
+            }
+            else {
+                view_.enablePlayButton();
+            }
+        }
+        else {
+        }
     }
 
     // Enable drawing
@@ -71,6 +103,12 @@ public class Controller extends Object
     @Override
     public void enableSelection () {
         view_.enableSelection();
+    }
+
+    // Enable playback
+    @Override
+    public void enablePlayback () {
+        view_.enablePlayback();
     }
 
     // --- Model Related Functions --- //
@@ -138,6 +176,11 @@ public class Controller extends Object
     @Override
     public void move (Point2D start, Point2D end) {
         model_.move(start, end);
+    }
+
+    @Override
+    public void updateFrameIndex (int index) {
+        model_.updateFrameIndex(index);
     }
 
 }

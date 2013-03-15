@@ -15,6 +15,7 @@ CLASSES = \
 		  sketch/model/TimeLine.java \
 		  sketch/view/IView.java \
 		  sketch/view/MouseController.java \
+		  sketch/view/Slider.java \
 		  sketch/view/Toolbar.java \
 		  sketch/view/View.java \
 		  sketch/Main.java

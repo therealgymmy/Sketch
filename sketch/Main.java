@@ -15,7 +15,7 @@ public class Main {
 
         JFrame frame = new JFrame("Sketch");
         frame.getContentPane().add(v);
-        frame.setSize(800, 600);
+        frame.setSize(1024, 768);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //frame.pack();
         frame.setVisible(true);

@@ -24,5 +24,6 @@ public interface IModel {
 
     // Animate
     public void move (Point2D start, Point2D end);
+    public void updateFrameIndex (int index);
 
 }

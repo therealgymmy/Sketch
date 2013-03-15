@@ -46,8 +46,24 @@ public class Model extends    Object
         timeline_.startPlay();
     }
 
+    public void pausePlayback () {
+        timeline_.stopPlay();
+    }
+
     public void setLineObjects (LinkedList<LineComponent> objects) {
         lineObjects_ = objects;
+    }
+
+    public int getFrameLength () {
+        return timeline_.getFrameLength();
+    }
+
+    public int getPlayFrameIndex () {
+        return timeline_.getPlayFrameIndex();
+    }
+
+    public boolean isPlaying () {
+        return timeline_.isPlaying();
     }
 
     // Get the selection path
@@ -165,6 +181,14 @@ public class Model extends    Object
                 lineObject.move(start, end);
             }
         }
+    }
+
+    // Set to a particular frame
+    @Override
+    public void updateFrameIndex (int index) {
+        timeline_.setPlayFrameIndex(index);
+        timeline_.loadFrame(index);
+        controller_.updateView();
     }
 
 }

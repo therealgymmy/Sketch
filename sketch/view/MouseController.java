@@ -19,6 +19,7 @@ public class MouseController extends MouseInputAdapter
         ERASE,
         SELECTION,
         ANIMATE,
+        PLAYBACK,
     }
 
     private IView  view_;

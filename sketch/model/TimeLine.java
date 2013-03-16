@@ -18,11 +18,12 @@ public class TimeLine {
 
     private javax.swing.Timer recordTimer_;
     private ActionListener    recordAction_;
-    private int               recordInterval_ = 33;
+    private ActionListener    insertAction_;
+    private int               recordInterval_ = 100;
 
     private javax.swing.Timer playTimer_;
     private ActionListener    playAction_;
-    private int               playInterval_   = 33;
+    private int               playInterval_   = 100;
     private int               playFrameIndex_ = 0;
 
     private class Frame {
@@ -50,12 +51,34 @@ public class TimeLine {
         setupRecordAction();
         resetRecordTimer();
 
+        setupInsertAction();
+
         setupPlayAction();
         resetPlayTimer();
     }
 
+    // Add this object from this point in time and onwards
+    public void addPartial (LineComponent object) {
+        if (playFrameIndex_ + 1 >= frames_.size()) {
+            return;
+        }
+
+        // The current frame is already modified.
+        ListIterator<Frame> frameItr
+            = frames_.listIterator(playFrameIndex_ + 1);
+
+        while (frameItr.hasNext()) {
+            Frame frame = frameItr.next();
+            frame.objects_.add(object);
+        }
+    }
+
     // Remove this object from this point in time and onwards
     public void removePartial (LineComponent object) {
+        if (playFrameIndex_ >= frames_.size()) {
+            return;
+        }
+
         ListIterator<Frame> frameItr
             = frames_.listIterator(playFrameIndex_);
 
@@ -87,6 +110,21 @@ public class TimeLine {
 
                 // Save one frame of the actions of the objects
                 saveFrame();
+
+                controller_.updateViewSetting();
+            }
+        };
+    }
+
+    // Set up the insert action
+    private void setupInsertAction () {
+        insertAction_ = new ActionListener () {
+            @Override
+            public void actionPerformed (ActionEvent e) {
+                Log.debug("Insert action...", 1);
+
+                // Save one frame of the actions of the objects
+                insertFrame();
 
                 controller_.updateViewSetting();
             }
@@ -147,8 +185,9 @@ public class TimeLine {
         }
 
         ListIterator frameItr = frames_.listIterator(playFrameIndex_);
+
         if (frameItr.hasNext()) {
-            frameItr.add(frame);
+            frames_.set(playFrameIndex_, frame);
         }
         else {
             frames_.add(frame);
@@ -157,16 +196,45 @@ public class TimeLine {
         ++playFrameIndex_;
     }
 
+    // Insert one frame of actions of the objects
+    public void insertFrame () {
+        Frame frame = new Frame();
+        LinkedList<LineComponent> objects = model_.getLineObjects();
+        for (LineComponent lineObj : objects) {
+            LineComponent newLineObj = lineObj.copy();
+            frame.objects_.add(newLineObj);
+        }
+
+        ListIterator frameItr = frames_.listIterator(playFrameIndex_);
+        //if (frameItr.hasNext()) {
+            frameItr.add(frame);
+        //}
+        //else {
+        //    frames_.add(frame);
+        //}
+
+        ++playFrameIndex_;
+    }
+
     // Load one fram of actions of the objects
+    // Update selection
     public void loadFrame (int index) {
         Frame frame = frames_.get(index);
         model_.setLineObjects(frame.objects_);
+        model_.updateSelection();
     }
 
     // Reset the timer according to record interval and action
     public void resetRecordTimer () {
         recordTimer_ = new javax.swing.Timer(recordInterval_,
                                              recordAction_);
+    }
+
+    // Reset the timer according to record interval and action
+    // Use the insertFrame instead of saveFrame
+    public void resetInsertTimer () {
+        recordTimer_ = new javax.swing.Timer(recordInterval_,
+                                             insertAction_);
     }
 
     // Reset the timer according to play interval and action

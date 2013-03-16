@@ -26,7 +26,26 @@ public class LineComponent {
             c.lines_.add(line);
         }
 
-        // isSelected
+        // isSelected is reset to false
+        c.isSelected_ = false;
+
+        return c;
+    }
+
+    // Return a copy of this line object
+    public LineComponent copy_all () {
+        LineComponent c = new LineComponent();
+
+        // AffineTransform
+        c.trans_ = (AffineTransform)trans_.clone();
+
+        // Copy over all the lines
+        for (Line2D line : lines_) {
+            line = (Line2D)line.clone();
+            c.lines_.add(line);
+        }
+
+        // isSelected is reset to false
         c.isSelected_ = isSelected_;
 
         return c;
@@ -40,7 +59,7 @@ public class LineComponent {
 
         while (lineItr.hasNext() || otherLineItr.hasNext()) {
             // If one iterator is at the end while the other isn't
-            // -> No math
+            // -> No match
             if (!lineItr.hasNext() || !otherLineItr.hasNext()) {
                 return false;
             }

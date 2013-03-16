@@ -68,6 +68,7 @@ public class View extends    JPanel
                 if (!mController_.getAnimate() &&
                     mController_.getState()
                     == MouseController.State.SELECTION) {
+                    controller_.enableFrameDefault();
                     controller_.enableAnimation();
                 }
                 else if (mController_.getAnimate() &&
@@ -187,10 +188,13 @@ public class View extends    JPanel
         }
 
         // Draw the selection path
-        Polygon selectionPath = controller_.getSelection();
-        g2d.setStroke(selectionStroke);
-        g2d.draw(selectionPath);
-        g2d.setStroke(backupStroke);
+        if (mController_.getState()
+                == MouseController.State.SELECTION) {
+            Polygon selectionPath = controller_.getSelection();
+            g2d.setStroke(selectionStroke);
+            g2d.draw(selectionPath);
+            g2d.setStroke(backupStroke);
+        }
     }
 
 }

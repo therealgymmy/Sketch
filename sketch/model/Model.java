@@ -19,6 +19,7 @@ public class Model extends    Object
     private LineComponent             curLineObject_;
     private LinkedList<LineComponent> lineObjects_;
     private Polygon                   selection_;
+    private LinkedList<LineComponent> selectedObjects_;
 
     public Model (Controller controller) {
         super();
@@ -28,10 +29,11 @@ public class Model extends    Object
         controller_.setModel(this);
 
         // initialize members
-        timeline_      = new TimeLine(this, controller_);
-        lineObjects_   = new LinkedList<LineComponent>();
-        curLineObject_ = new LineComponent();
-        selection_     = new Polygon();
+        timeline_        = new TimeLine(this, controller_);
+        lineObjects_     = new LinkedList<LineComponent>();
+        curLineObject_   = new LineComponent();
+        selection_       = new Polygon();
+        selectedObjects_ = new LinkedList<LineComponent>();
     }
 
     public void startAnimation () {
@@ -141,6 +143,9 @@ public class Model extends    Object
     public void finalizeNewObject () {
         Log.debug("Finalized a new line object", 2);
 
+        // Add this object from this point in time and onwards
+        timeline_.addPartial(curLineObject_);
+
         curLineObject_ = new LineComponent();
     }
 
@@ -148,6 +153,8 @@ public class Model extends    Object
     @Override
     public void addNewSelection () {
         Log.debug("Started a new selection", 2);
+
+        selectedObjects_ = new LinkedList<LineComponent>();
 
         for (LineComponent lineObject : lineObjects_) {
             lineObject.setIsSelected(false);
@@ -163,10 +170,31 @@ public class Model extends    Object
         for (LineComponent lineObject : lineObjects_) {
             if (lineObject.intersects(selection_)) {
                 lineObject.setIsSelected(true);
+                selectedObjects_.add(lineObject);
             }
         }
 
         selection_ = new Polygon();
+    }
+
+    // Compare previous selected objects to current objects
+    public void updateSelection () {
+        ListIterator<LineComponent> objItr
+            = lineObjects_.listIterator(0);
+
+        while (objItr.hasNext()) {
+
+            ListIterator<LineComponent> objItr_s
+                = selectedObjects_.listIterator(0);
+
+            LineComponent obj   = objItr.next();
+            while (objItr_s.hasNext()) {
+                LineComponent obj_s = objItr_s.next();
+                if (obj.equal(obj_s)) {
+                    obj.setIsSelected(true);
+                }
+            }
+        }
     }
 
     // Extend a selection
@@ -190,7 +218,18 @@ public class Model extends    Object
     public void updateFrameIndex (int index) {
         timeline_.setPlayFrameIndex(index);
         timeline_.loadFrame(index);
+        updateSelection();
         controller_.updateView();
+    }
+
+    // Enable the recordTimer to default frame policy
+    public void enableFrameDefault () {
+        timeline_.resetRecordTimer();
+    }
+
+    // Enable the recordTimer to insert new frames
+    public void enableFrameInsertion () {
+        timeline_.resetInsertTimer();
     }
 
 }

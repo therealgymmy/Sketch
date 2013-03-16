@@ -187,4 +187,14 @@ public class Controller extends Object
         model_.updateFrameIndex(index);
     }
 
+    // Enable the recordTimer to default frame policy
+    public void enableFrameDefault () {
+        model_.enableFrameDefault();
+    }
+
+    // Enable the recordTimer to insert new frames
+    public void enableFrameInsertion () {
+        model_.enableFrameInsertion();
+    }
+
 }

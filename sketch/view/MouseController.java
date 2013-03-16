@@ -108,19 +108,26 @@ public class MouseController extends MouseInputAdapter
         switch (state_) {
             case SELECTION:
                 if ((e.getModifiers() &
-                    InputEvent.CTRL_MASK) != 0) {
+                     InputEvent.BUTTON1_MASK) == 0) {
+                    break;
+                }
+
+                if ((e.getModifiers() &
+                     InputEvent.CTRL_MASK) != 0) {
                     Log.debug("Ctrl + Click pressed", 2);
+                    controller_.enableFrameDefault();
+                    controller_.enableAnimation();
+                }
+                else if ((e.getModifiers() &
+                          InputEvent.ALT_MASK) != 0) {
+                    Log.debug("ALT + Click pressed", 2);
+                    controller_.enableFrameInsertion();
                     controller_.enableAnimation();
                 }
                 break;
             case ANIMATE:
                 if ((e.getModifiers() &
-                    InputEvent.CTRL_MASK) == 0) {
-                    Log.debug("Ctrl lifted", 2);
-                    controller_.disableAnimation();
-                }
-                else if ((e.getModifiers() &
-                         InputEvent.BUTTON1_MASK) == 0) {
+                     InputEvent.BUTTON1_MASK) == 0) {
                     Log.debug("Ctrl lifted", 2);
                     controller_.disableAnimation();
                 }

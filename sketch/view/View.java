@@ -179,7 +179,7 @@ public class View extends    JPanel
         for (LineComponent lineObject : lineObjects) {
             if (lineObject.isSelected() &&
                 mController_.getState()
-                == MouseController.State.SELECTION) {
+                != MouseController.State.PLAYBACK) {
                 g2d.setStroke(selectedStroke);
             }
             lineObject.paint(g2d);

@@ -54,6 +54,30 @@ public class TimeLine {
         resetPlayTimer();
     }
 
+    // Remove this object from this point in time and onwards
+    public void removePartial (LineComponent object) {
+        ListIterator<Frame> frameItr
+            = frames_.listIterator(playFrameIndex_);
+
+        while (frameItr.hasNext()) {
+            Frame frame = frameItr.next();
+
+            LinkedList<LineComponent> toRemove
+                = new LinkedList<LineComponent>();
+
+            for (LineComponent obj : frame.objects_) {
+                if (obj.equal(object)) {
+                    toRemove.add(obj);
+                }
+            }
+
+            // Delete all the line objects that match
+            for (LineComponent r : toRemove) {
+                frame.objects_.remove(r);
+            }
+        }
+    }
+
     // Set up the record action
     private void setupRecordAction () {
         recordAction_ = new ActionListener () {

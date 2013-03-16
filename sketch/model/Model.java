@@ -101,7 +101,8 @@ public class Model extends    Object
         for (LineComponent r : toRemove) {
             Log.debug("Removed a line object", 2);
 
-            lineObjects_.remove(r);
+            // Remove this object from this point in time and onwards
+            timeline_.removePartial(r);
         }
     }
 
@@ -122,7 +123,8 @@ public class Model extends    Object
         for (LineComponent r : toRemove) {
             Log.debug("Removed a line object", 2);
 
-            lineObjects_.remove(r);
+            // Remove this object from this point in time and onwards
+            timeline_.removePartial(r);
         }
     }
 

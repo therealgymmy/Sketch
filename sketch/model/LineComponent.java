@@ -32,6 +32,33 @@ public class LineComponent {
         return c;
     }
 
+    // Find out if the other line object is the same as this one
+    public boolean equal (LineComponent otherObject) {
+        ListIterator<Line2D> lineItr = lines_.listIterator(0);
+        ListIterator<Line2D> otherLineItr
+            = otherObject.lines_.listIterator(0);
+
+        while (lineItr.hasNext() || otherLineItr.hasNext()) {
+            // If one iterator is at the end while the other isn't
+            // -> No math
+            if (!lineItr.hasNext() || !otherLineItr.hasNext()) {
+                return false;
+            }
+
+            // Check if every single line is the same
+            Line2D line      = lineItr.next();
+            Line2D otherLine = otherLineItr.next();
+            if (!(line.getX1() == otherLine.getX1() &&
+                  line.getY1() == otherLine.getY1() &&
+                  line.getX2() == otherLine.getX2() &&
+                  line.getY2() == otherLine.getY2())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public boolean isSelected () {
         return isSelected_;
     }

@@ -126,24 +126,28 @@ public class View extends    JPanel
     @Override
     public void enableDraw () {
         mController_.setState(MouseController.State.DRAW);
+        mController_.updateCursor();
     }
 
     // Enable erase mode
     @Override
     public void enableErase () {
         mController_.setState(MouseController.State.ERASE);
+        mController_.updateCursor();
     }
 
     // Enable selection mode
     @Override
     public void enableSelection () {
         mController_.setState(MouseController.State.SELECTION);
+        mController_.updateCursor();
     }
 
     // Enable playback mode
     @Override
     public void enablePlayback () {
         mController_.setState(MouseController.State.PLAYBACK);
+        mController_.updateCursor();
     }
 
     // Paint the entire view

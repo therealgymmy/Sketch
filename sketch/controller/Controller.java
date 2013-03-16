@@ -45,14 +45,18 @@ public class Controller extends Object
 
     // Playback previous recorded animation
     public void playAnimation () {
-        model_.enablePlayback();
-        view_.enablePlayback();
+        if (!model_.isPlaying()) {
+            model_.enablePlayback();
+            view_.enablePlayback();
+        }
     }
 
     // Pause Playback
     public void pauseAnimation () {
-        model_.pausePlayback();
-        view_.enablePlayButton();
+        if (model_.isPlaying()) {
+            model_.pausePlayback();
+            view_.enablePlayButton();
+        }
     }
 
     // --- View Related Functions --- //

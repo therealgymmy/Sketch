@@ -58,6 +58,10 @@ public class Toolbar extends JPanel {
             }
         });
         toolbar.add(button);
+
+        // Set default cursor
+        Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+        setCursor(cursor);
     }
 
     public void drawButtonPressed () {

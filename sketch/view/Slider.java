@@ -74,6 +74,10 @@ public class Slider extends JPanel
                 BorderFactory.createEmptyBorder(0, 20, 0, 20));
         slider_.addChangeListener(this);
         toolbar.add(slider_);
+
+        // Set default cursor
+        Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+        setCursor(cursor);
     }
 
     // Enable playback button

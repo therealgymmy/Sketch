@@ -11,7 +11,18 @@ public class LineComponent {
 
     private AffineTransform    trans_ = new AffineTransform();
     private LinkedList<Line2D> lines_ = new LinkedList<Line2D>();
-    private boolean            isSelected_;
+    private boolean            isSelected_ = false;
+
+    public LineComponent copy () {
+        LineComponent c = new LineComponent();
+
+        for (Line2D line : lines_) {
+            Line2D l = (Line2D)line.clone();
+            c.lines_.add(l);
+        }
+
+        return c;
+    }
 
     public boolean isSelected () {
         return isSelected_;
@@ -19,6 +30,14 @@ public class LineComponent {
 
     public void setIsSelected (boolean cond) {
         isSelected_ = cond;
+    }
+
+    public void setTransform (AffineTransform trans) {
+        trans_ = trans;
+    }
+
+    public LinkedList<Line2D> getLines () {
+        return lines_;
     }
 
     // Default add line

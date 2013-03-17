@@ -15,9 +15,13 @@ public class Model extends    Object
 
     private Controller controller_;
 
-    private LineComponent             curLineObject_;
-    private LinkedList<LineComponent> lineObjects_;
-    private Polygon                   selection_;
+    private LineComponent curLineObject_;
+    private Polygon       selection_;
+
+    private final LineObjectCollection objects_
+        = new LineObjectCollection();
+
+    private final TimeLineControl timeControl_;
 
     public Model (Controller controller) {
         super();
@@ -27,9 +31,9 @@ public class Model extends    Object
         controller_.setModel(this);
 
         // initialize members
-        lineObjects_   = new LinkedList<LineComponent>();
         curLineObject_ = new LineComponent();
         selection_     = new Polygon();
+        timeControl_   = new TimeLineControl(this, controller);
     }
 
     // Get the selection path
@@ -39,57 +43,23 @@ public class Model extends    Object
     }
 
     // Get all the line objects
-    @Override
-    public LinkedList<LineComponent> getLineObjects () {
-        return lineObjects_;
-    }
-
-    // Add a new line
-    @Override
-    public void addLine (Point2D start, Point2D end) {
-        curLineObject_.addLine(start, end);
+    public LineObjectCollection getLineObjects () {
+        return objects_;
     }
 
     // Erase a line that the point it draws touches
     @Override
     public void eraseLine (Point2D point) {
-        LinkedList<LineComponent> toRemove
-            = new LinkedList<LineComponent>();
-
-        // Record the line objects that intersects the point
-        for (LineComponent lineObject : lineObjects_) {
-            if (lineObject.intersects(point)) {
-                toRemove.add(lineObject);
-            }
-        }
-
-        // Delete all the line objects that match
-        for (LineComponent r : toRemove) {
-            Log.debug("Removed a line object", 2);
-
-            lineObjects_.remove(r);
-        }
+        // Do nothing
     }
 
     // Erase a line that the line it draws crosses
     @Override
     public void eraseLine (Point2D start, Point2D end) {
-        LinkedList<LineComponent> toRemove
-            = new LinkedList<LineComponent>();
+        Line2D eraser = new Line2D.Double(start, end);
+        objects_.erase(eraser);
 
-        // Record the line objects that intersects the point
-        for (LineComponent lineObject : lineObjects_) {
-            if (lineObject.intersects(start, end)) {
-                toRemove.add(lineObject);
-            }
-        }
-
-        // Delete all the line objects that match
-        for (LineComponent r : toRemove) {
-            Log.debug("Removed a line object", 2);
-
-            lineObjects_.remove(r);
-        }
+        controller_.updateView();
     }
 
     // Add a new lineObject to the linked list
@@ -97,7 +67,18 @@ public class Model extends    Object
     public void addNewObject () {
         Log.debug("Created a new line object", 2);
 
-        lineObjects_.add(curLineObject_);
+        //lineObjects_.add(curLineObject_);
+        objects_.add(curLineObject_);
+
+        controller_.updateView();
+    }
+
+    // Add a new line
+    @Override
+    public void addLine (Point2D start, Point2D end) {
+        curLineObject_.addLine(start, end);
+
+        controller_.updateView();
     }
 
     // Create a new lineObject
@@ -106,6 +87,8 @@ public class Model extends    Object
         Log.debug("Finalized a new line object", 2);
 
         curLineObject_ = new LineComponent();
+
+        controller_.updateView();
     }
 
     // Clear all previously selected line objects
@@ -113,9 +96,9 @@ public class Model extends    Object
     public void addNewSelection () {
         Log.debug("Started a new selection", 2);
 
-        for (LineComponent lineObject : lineObjects_) {
-            lineObject.setIsSelected(false);
-        }
+        objects_.clearSelection();
+
+        controller_.updateView();
     }
 
     // Enclose a selection on line objects
@@ -124,29 +107,93 @@ public class Model extends    Object
     public void encloseSelection () {
         Log.debug("Closed the selection", 2);
 
+        /*
         for (LineComponent lineObject : lineObjects_) {
             if (lineObject.intersects(selection_)) {
                 lineObject.setIsSelected(true);
             }
         }
+        */
+        objects_.encloseSelection(selection_);
 
         selection_ = new Polygon();
+
+        controller_.updateView();
     }
 
     // Extend a selection
     @Override
     public void extendSelection (Point2D start, Point2D end) {
         selection_.addPoint((int)end.getX(), (int)end.getY());
+
+        controller_.updateView();
     }
 
     // Move selected objects around
     @Override
     public void move (Point2D start, Point2D end) {
-        for (LineComponent lineObject : lineObjects_) {
-            if (lineObject.isSelected()) {
-                lineObject.move(start, end);
-            }
-        }
+        objects_.moveSelection(start, end);
+        
+        controller_.updateView();
+    }
+
+    // --- TimeLine Operations --- //
+
+    // => insert a copy of current frames before next frame
+    public void insertCurrentFrame () {
+        objects_.insertCurrentFrame();
+
+        controller_.updateViewSetting();
+        controller_.updateView();
+    }
+
+    // => populate frame until the end with the current transform
+    public void populateNewTimeLine () {
+        objects_.populateNewTimeLine();
+
+        controller_.updateView();
+    }
+
+    // => load frames for those unselected objects
+    public void loadCurrentFrameForUnselected () {
+        objects_.loadCurrentFrameForUnselected();
+
+        controller_.updateView();
+    }
+
+    // -> load frames at the specified index
+    // -> update current frame index
+    public void loadFrame (int index) {
+        TimeLine.setFrameIndex(index);
+        objects_.loadFrame(index);
+        controller_.updateView();
+    }
+
+    // --- TimeLineControl Operations --- //
+
+    // => turn on the timeline recorder
+    public void enableRecord () {
+        timeControl_.startRecord();
+    }
+
+    // => turn off the timeline recorder
+    public void disableRecord () {
+        timeControl_.stopRecord();
+    }
+
+    // => find out if playing
+    public boolean isPlaying () {
+        return timeControl_.isPlaying();
+    }
+
+    // => enable playback
+    public void enablePlayback () {
+        timeControl_.startPlay();
+    }
+
+    // => disable playback
+    public void disablePlayback () {
+        timeControl_.stopPlay();
     }
 
 }

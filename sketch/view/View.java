@@ -18,6 +18,7 @@ public class View extends    JPanel
 
     private MouseController mController_;
     private Toolbar         toolbar_;
+    private Slider          slider_;
 
     public View (Controller controller) {
         super();
@@ -37,13 +38,15 @@ public class View extends    JPanel
     // Initialize view layout and view components
     private void layoutView () {
         setSize(800, 600);
-        setLayout(new SpringLayout());
+        setLayout(new BorderLayout());
 
         // Initialize components
-        toolbar_ = new Toolbar(this);
+        toolbar_ = new Toolbar(this, controller_);
+        slider_  = new Slider(this, controller_);
 
         // Add components to view
-        add(toolbar_);
+        add(toolbar_, BorderLayout.PAGE_START);
+        add(slider_,  BorderLayout.PAGE_END);
     }
 
     // Register event controllers for mouse clicks and motion
@@ -51,50 +54,12 @@ public class View extends    JPanel
         mController_ = new MouseController(this, controller_);
         addMouseListener(mController_);
         addMouseMotionListener(mController_);
-        setAnimationKey();
-    }
-
-    // Set up a keybinding for animation
-    public void setAnimationKey () {
-        getInputMap().put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_A,
-                                       InputEvent.CTRL_DOWN_MASK),
-                "ctrl_a_down");
-        Action down_action = new AbstractAction () {
-            public void actionPerformed(ActionEvent e) {
-                if (!mController_.getAnimate()) {
-                    mController_.setAnimate(true);
-                }
-                else {
-                    mController_.setAnimate(false);
-                }
-            }
-        };
-        getActionMap().put("ctrl_a_down", down_action);
     }
 
     // Ask the system to repaint
     @Override
     public void updateView () {
         repaint();
-    }
-
-    // Enable draw mode
-    @Override
-    public void enableDraw () {
-        mController_.setState(MouseController.State.DRAW);
-    }
-
-    // Enable erase mode
-    @Override
-    public void enableErase () {
-        mController_.setState(MouseController.State.ERASE);
-    }
-
-    // Enable selection mode
-    @Override
-    public void enableSelection () {
-        mController_.setState(MouseController.State.SELECTION);
     }
 
     // Paint the entire view
@@ -104,38 +69,83 @@ public class View extends    JPanel
 
         Graphics2D g2d = (Graphics2D)g;
 
-        Stroke backupStroke = g2d.getStroke();
-
-        float dash1[] = { 10.0f };
-
-        Stroke selectedStroke
-            = new BasicStroke(2.0f,
-                              BasicStroke.CAP_BUTT,
-                              BasicStroke.JOIN_MITER,
-                              10.0f, null, 0.0f);
-
-        Stroke selectionStroke
-            = new BasicStroke(5.0f,
-                              BasicStroke.CAP_BUTT,
-                              BasicStroke.JOIN_MITER,
-                              10.0f, dash1, 0.0f);
-
         // Draw all lines
-        LinkedList<LineComponent> lineObjects
+        LineObjectCollection lineObjects
             = controller_.getLineObjects();
-        for (LineComponent lineObject : lineObjects) {
-            if (lineObject.isSelected()) {
-                g2d.setStroke(selectedStroke);
-            }
-            lineObject.paint(g2d);
-            g2d.setStroke(backupStroke);
-        }
+
+        Paint.paint(g2d, lineObjects);
 
         // Draw the selection path
         Polygon selectionPath = controller_.getSelection();
-        g2d.setStroke(selectionStroke);
-        g2d.draw(selectionPath);
-        g2d.setStroke(backupStroke);
+        Paint.paintSelection(g2d, selectionPath);
+    }
+
+    // --- State --- //
+
+    // => return the state the view is in
+    public MouseController.State getState () {
+        return mController_.getState();
+    }
+
+    // Enable draw mode
+    @Override
+    public void enableDraw () {
+        mController_.setState(MouseController.State.DRAW);
+        mController_.updateCursor();
+    }
+
+    // Enable erase mode
+    @Override
+    public void enableErase () {
+        mController_.setState(MouseController.State.ERASE);
+        mController_.updateCursor();
+    }
+
+    // Enable selection mode
+    @Override
+    public void enableSelection () {
+        mController_.setState(MouseController.State.SELECTION);
+        mController_.updateCursor();
+    }
+
+    public void enableDrag () {
+        mController_.setState(MouseController.State.DRAG);
+        mController_.updateCursor();
+    }
+
+    // Enable record mode
+    public void enableRecord () {
+        mController_.setState(MouseController.State.RECORD);
+        mController_.updateCursor();
+    }
+
+    // => enable playback
+    public void enablePlayback () {
+        mController_.setState(MouseController.State.PLAYBACK);
+        mController_.updateCursor();
+    }
+
+    // --- Slider --- //
+
+    // => set the length of the slider,
+    //    which reflects the length of the frames
+    public void setSliderLength (int length) {
+        slider_.setSliderLength(length);
+    }
+
+    // => set the position of the knob on the slider
+    public void setSliderPointerPosition (int pos) {
+        slider_.setPointerPosition(pos);
+    }
+
+    // => turn on play button
+    public void enablePlayButton () {
+        slider_.enablePlayButton();
+    }
+
+    // => turn on pause button
+    public void enablePauseButton () {
+        slider_.enablePauseButton();
     }
 
 }

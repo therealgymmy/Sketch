@@ -5,14 +5,16 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import sketch.common.*;
-import sketch.view.*;
+import sketch.controller.*;
 
 public class Toolbar extends JPanel {
 
-    private View view_;
+    private View       view_;
+    private Controller controller_;
 
-    public Toolbar (View view) {
-        view_ = view;
+    public Toolbar (View view, Controller controller) {
+        view_       = view;
+        controller_ = controller;
 
         layoutView();
     }
@@ -20,20 +22,25 @@ public class Toolbar extends JPanel {
     public void drawButtonPressed () {
         view_.enableDraw();
         view_.requestFocusInWindow();
+        controller_.pauseAnimation();
     }
 
     public void eraseButtonPressed () {
         view_.enableErase();
         view_.requestFocusInWindow();
+        controller_.pauseAnimation();
     }
 
     public void selectionButtonPressed () {
         view_.enableSelection();
         view_.requestFocusInWindow();
+        controller_.pauseAnimation();
     }
 
     // Set up all the buttons in the toolbar
     public void layoutView () {
+        setLayout(new BorderLayout());
+
         JButton button = null;
 
         // Create toolbar
@@ -69,6 +76,10 @@ public class Toolbar extends JPanel {
             }
         });
         toolbar.add(button);
+
+        // Set default cursor
+        Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+        setCursor(cursor);
     }
 
 }

@@ -7,45 +7,92 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import sketch.common.*;
-import sketch.model.*;
+import sketch.controller.*;
 
 // Mouse Controller responsible for dragging/clicking
-public class MouseController extends MouseInputAdapter
-                             implements KeyListener {
+public class MouseController extends MouseInputAdapter {
 
     // Describes the state the user interaction is in
     public enum State {
         DRAW,
         ERASE,
         SELECTION,
-        ANIMATE,
+        DRAG,
+        RECORD,
+        PLAYBACK,
     }
 
-    private IView  view_;
-    private IModel controller_;
+    private View       view_;
+    private Controller controller_;
 
     private State   state_   = State.DRAW;
     private Point2D curLoc_;
 
-    MouseController (IView view, IModel controller) {
+    private Cursor drawCursor_;
+    private Cursor eraseCursor_;
+    private Cursor selectionCursor_;
+    private Cursor animateCursor_;
+    private Cursor playbackCursor_;
+
+    MouseController (View view, Controller controller) {
         super();
 
         view_       = view;
         controller_ = controller;
+
+        layoutView();
     }
 
-    public boolean getAnimate () {
-        return state_ == State.ANIMATE;
+    public void layoutView () {
+        // Initialize all the cursors
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+
+        // Draw cursor
+        Image image1 = toolkit.getImage("sketch/resources/draw.gif");
+        Point hotspot1 = new Point(0, 0);
+        drawCursor_
+            = toolkit.createCustomCursor(image1, hotspot1, "Draw");
+
+
+        // Erase cursor
+        Image image2 = toolkit.getImage("sketch/resources/erase.png");
+        Point hotspot2 = new Point(0, 31);
+        eraseCursor_
+            = toolkit.createCustomCursor(image2, hotspot2, "Erase");
+
+
+        // Select cursor
+        selectionCursor_ = new Cursor(Cursor.HAND_CURSOR);
+
+
+        // Animate cursor
+        animateCursor_ = new Cursor(Cursor.DEFAULT_CURSOR);
+
+
+        // Playback cursor
+        playbackCursor_ = new Cursor(Cursor.DEFAULT_CURSOR);
+
+
+        view_.setCursor(drawCursor_);
     }
 
-    public void setAnimate (boolean cond) {
+    public State getState () {
+        return state_;
+    }
+
+    public boolean isRecording () {
+        return state_ == State.RECORD;
+    }
+
+    public void setRecord (boolean cond) {
         if (cond && state_ == State.SELECTION) {
-            state_ = State.ANIMATE;
-            Log.debug("Animation enabled", 2);
+            state_ = State.RECORD;
+            Log.debug("Recording enabled", 2);
         }
-        else if (!cond && state_ == State.ANIMATE) {
+        else if (!cond && state_ == State.RECORD) {
             state_ = State.SELECTION;
-            Log.debug("Animation disabled", 2);
+            Log.debug("Recording disabled", 2);
         }
     }
 
@@ -53,10 +100,33 @@ public class MouseController extends MouseInputAdapter
         state_ = state;
     }
 
+    public void updateCursor () {
+        switch (state_) {
+            case DRAW:
+                view_.setCursor(drawCursor_);
+                break;
+            case ERASE:
+                view_.setCursor(eraseCursor_);
+                break;
+            case SELECTION:
+            case DRAG:
+                view_.setCursor(selectionCursor_);
+                break;
+            case RECORD:
+                view_.setCursor(animateCursor_);
+                break;
+            case PLAYBACK:
+                view_.setCursor(playbackCursor_);
+                break;
+        }
+    }
+
     @Override
     public void mousePressed (MouseEvent e) {
         Log.debug("Mouse Pressed --> X: " +
                   e.getX() + " Y: " + e.getY(), 1);
+
+        updateState(e);
 
         switch (state_) {
             case DRAW:
@@ -68,18 +138,19 @@ public class MouseController extends MouseInputAdapter
             case SELECTION:
                 selection_mousePressed(e);
                 break;
-            case ANIMATE:
+            case DRAG:    // Drag without the timer
+            case RECORD:
                 animate_mousePressed(e);
                 break;
         }
-
-        view_.updateView();
     }
 
     @Override
     public void mouseReleased (MouseEvent e) {
         Log.debug("Mouse Released --> X: " +
                   e.getX() + " Y: " + e.getY(), 1);
+
+        updateState(e);
 
         switch (state_) {
             case DRAW:
@@ -90,21 +161,24 @@ public class MouseController extends MouseInputAdapter
             case SELECTION:
                 selection_mouseReleased(e);
                 break;
-            case ANIMATE:
+            case DRAG:
+                break;
+            case RECORD:
                 break;
         }
-
-        view_.updateView();
     }
 
     @Override
     public void mouseMoved (MouseEvent e) {
+        updateState(e);
     }
 
     @Override
     public void mouseDragged (MouseEvent e) {
         Log.debug("Mouse Dragged --> X: " +
                   e.getX() + " Y: " + e.getY(), 1);
+
+        updateState(e);
 
         switch (state_) {
             case DRAW:
@@ -116,27 +190,50 @@ public class MouseController extends MouseInputAdapter
             case SELECTION:
                 selection_mouseDragged(e);
                 break;
-            case ANIMATE:
+            case DRAG:    // Drag without the timer
+            case RECORD:
                 animate_mouseDragged(e);
                 break;
         }
 
-        view_.updateView();
+        //view_.updateView();
     }
 
-    @Override
-    public void keyPressed (KeyEvent e) {
-        Log.debug("Key Pressed --> " + e, 2);
-    }
+    // Update state according to mouse keys
+    public void updateState (MouseEvent e) {
+        switch (state_) {
+            case SELECTION:
+                if ((e.getModifiers() &
+                     InputEvent.BUTTON1_MASK) == 0) {
+                    break;
+                }
 
-    @Override
-    public void keyTyped (KeyEvent e) {
-        Log.debug("Key Typed --> " + e, 2);
-    }
-
-    @Override
-    public void keyReleased (KeyEvent e) {
-        Log.debug("Key Released --> " + e, 2);
+                if ((e.getModifiers() &
+                     InputEvent.CTRL_MASK) != 0) {
+                    Log.debug("Ctrl + Click pressed", 2);
+                    controller_.enableRecord();
+                }
+                else if ((e.getModifiers() &
+                          InputEvent.SHIFT_MASK) != 0) {
+                    Log.debug("SHIFT + Click pressed", 2);
+                    view_.enableDrag();
+                }
+                break;
+            case RECORD:
+                if ((e.getModifiers() &
+                     InputEvent.BUTTON1_MASK) == 0) {
+                    Log.debug("Ctrl lifted", 2);
+                    controller_.disableRecord();
+                }
+                break;
+            case DRAG:
+                if ((e.getModifiers() &
+                     InputEvent.BUTTON1_MASK) == 0) {
+                    Log.debug("Shift lifted", 2);
+                    controller_.disableRecord();
+                }
+                break;
+        }
     }
 
     // Update current mouse location

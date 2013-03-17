@@ -7,7 +7,7 @@ import java.util.*;
 public interface IModel {
 
     // Get resources
-    public LinkedList<LineComponent> getLineObjects ();
+    //public LinkedList<LineComponent> getLineObjects ();
     public Polygon getSelection ();
 
     // Draw/Erase

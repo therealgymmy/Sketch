@@ -29,11 +29,82 @@ public class Controller extends Object
         model_ = model;
     }
 
+    // --- View & Model Related Functions --- //
+
+    // Enable animation recording
+    public void enableRecord () {
+        view_.enableRecord();
+        model_.enableRecord();
+    }
+
+    // Disable animation recording
+    public void disableRecord () {
+        view_.enableSelection();
+        model_.disableRecord();
+    }
+
+    // Play previous recorded animation
+    public void playAnimation () {
+        if (!model_.isPlaying()) {
+            model_.enablePlayback();
+            view_.enablePlayback();
+        }
+    }
+
+    // Pause playback
+    public void pauseAnimation () {
+        if (model_.isPlaying()) {
+            model_.disablePlayback();
+            view_.enablePlayButton();
+        }
+    }
+
     // --- View Related Functions --- //
+
     // Refresh
     @Override
     public void updateView () {
         view_.updateView();
+    }
+
+    // Update view settings
+    public void updateViewSetting () {
+        int length = TimeLine.getFrameLength();
+        view_.setSliderLength(length - 1);
+
+        int pos = TimeLine.getFrameIndex();
+        view_.setSliderPointerPosition(pos);
+
+        if (model_.isPlaying()) {
+            view_.enablePauseButton();
+        }
+        else {
+            view_.enablePlayButton();
+        }
+
+        /*
+        if (model_.getFrameLength() > 0) {
+            // Update slider length
+            int size = model_.getFrameLength();
+            view_.setSliderLength(size - 1);
+
+
+            // Update slider pointer position
+            int pos = model_.getPlayFrameIndex();
+            view_.setSliderPointerPosition(pos);
+
+
+            // Update play button status
+            if (model_.isPlaying()) {
+                view_.enablePauseButton();
+            }
+            else {
+                view_.enablePlayButton();
+            }
+        }
+        else {
+        }
+        */
     }
 
     // Enable drawing
@@ -55,6 +126,7 @@ public class Controller extends Object
     }
 
     // --- Model Related Functions --- //
+
     // Get the selection path
     @Override
     public Polygon getSelection () {
@@ -62,8 +134,7 @@ public class Controller extends Object
     }
 
     // Get all the line objects
-    @Override
-    public LinkedList<LineComponent> getLineObjects () {
+    public LineObjectCollection getLineObjects () {
         return model_.getLineObjects();
     }
 
@@ -119,6 +190,14 @@ public class Controller extends Object
     @Override
     public void move (Point2D start, Point2D end) {
         model_.move(start, end);
+    }
+
+    public void loadFrame (int index) {
+        model_.loadFrame(index);
+    }
+
+    public void insertCurrentFrame () {
+        model_.insertCurrentFrame();
     }
 
 }

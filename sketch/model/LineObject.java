@@ -57,10 +57,47 @@ public class LineObject {
 
     // => translate by the different of two points
     public void move (Point2D start, Point2D end) {
-        double dx = end.getX() - start.getX();
-        double dy = end.getY() - start.getY();
+        try {
+            start = transform_.inverseTransform(start, null);
+            end   = transform_.inverseTransform(end, null);
 
-        transform_.translate(dx, dy);
+            Point2D diff
+                = new Point2D.Double(end.getX() - start.getX(),
+                                     end.getY() - start.getY());
+            transform_.translate(diff.getX(), diff.getY());
+        }
+        catch (Exception e) {
+        }
+
+        saveCurrentFrame();
+
+        // Populate from this frame to the end
+        populateNewTimeLine();
+
+        // Reset end index to 0
+        time_.setEndIndex(0);
+    }
+
+    // => translate by the difference of two points
+    public void rotate (Point2D start, Point2D end, Point2D ancor) {
+        Point2D oldDiff
+            = new Point2D.Double(start.getX() - ancor.getX(),
+                                 start.getY() - ancor.getY());
+        Point2D newDiff
+            = new Point2D.Double(end.getX() - ancor.getX(),
+                                 end.getY() - ancor.getY());
+
+        try {
+            ancor = transform_.inverseTransform(ancor, null);
+
+            double theta
+                = Math.atan2(newDiff.getX(), newDiff.getY()) -
+                  Math.atan2(oldDiff.getX(), oldDiff.getY());
+
+            transform_.rotate(theta, ancor.getX(), ancor.getY());
+        }
+        catch (Exception e) {
+        }
 
         saveCurrentFrame();
 

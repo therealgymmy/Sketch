@@ -78,6 +78,17 @@ public class LineObjectCollection {
         }
     }
 
+    // Rotate selected objects around
+    public void rotateSelection (Point2D start,
+                                 Point2D end,
+                                 Point2D ancor) {
+        for (LineObject lineObject : objects_) {
+            if (lineObject.isSelected()) {
+                lineObject.rotate(start, end, ancor);
+            }
+        }
+    }
+
     // --- TimeLine Operations --- //
 
     // => insert a copy of current frames before next frame

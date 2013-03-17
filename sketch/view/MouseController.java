@@ -17,8 +17,13 @@ public class MouseController extends MouseInputAdapter {
         DRAW,
         ERASE,
         SELECTION,
+
         DRAG,
-        RECORD,
+        ROTATE,
+
+        RECORD_DRAG,
+        RECORD_ROTATE,
+
         PLAYBACK,
     }
 
@@ -27,6 +32,7 @@ public class MouseController extends MouseInputAdapter {
 
     private State   state_   = State.DRAW;
     private Point2D curLoc_;
+    private Point2D ancorLoc_;      // for rotation
 
     private Cursor drawCursor_;
     private Cursor eraseCursor_;
@@ -77,22 +83,27 @@ public class MouseController extends MouseInputAdapter {
         view_.setCursor(drawCursor_);
     }
 
+    public Point2D getAncor () {
+        return ancorLoc_;
+    }
+
     public State getState () {
         return state_;
     }
 
     public boolean isRecording () {
-        return state_ == State.RECORD;
+        return state_ == State.RECORD_DRAG ||
+               state_ == State.RECORD_ROTATE;
     }
 
-    public void setRecord (boolean cond) {
+    public void setRecordDrag (boolean cond) {
         if (cond && state_ == State.SELECTION) {
-            state_ = State.RECORD;
-            Log.debug("Recording enabled", 2);
+            state_ = State.RECORD_DRAG;
+            Log.debug("Drag Recording enabled", 2);
         }
-        else if (!cond && state_ == State.RECORD) {
+        else if (!cond && state_ == State.RECORD_DRAG) {
             state_ = State.SELECTION;
-            Log.debug("Recording disabled", 2);
+            Log.debug("Drag Recording disabled", 2);
         }
     }
 
@@ -110,9 +121,11 @@ public class MouseController extends MouseInputAdapter {
                 break;
             case SELECTION:
             case DRAG:
+            case ROTATE:
                 view_.setCursor(selectionCursor_);
                 break;
-            case RECORD:
+            case RECORD_DRAG:
+            case RECORD_ROTATE:
                 view_.setCursor(animateCursor_);
                 break;
             case PLAYBACK:
@@ -139,8 +152,12 @@ public class MouseController extends MouseInputAdapter {
                 selection_mousePressed(e);
                 break;
             case DRAG:    // Drag without the timer
-            case RECORD:
-                animate_mousePressed(e);
+            case RECORD_DRAG:
+                drag_mousePressed(e);
+                break;
+            case ROTATE:
+            case RECORD_ROTATE:
+                rotate_mousePressed(e);
                 break;
         }
     }
@@ -162,8 +179,11 @@ public class MouseController extends MouseInputAdapter {
                 selection_mouseReleased(e);
                 break;
             case DRAG:
+            case RECORD_DRAG:
                 break;
-            case RECORD:
+            case ROTATE:
+            case RECORD_ROTATE:
+                rotate_mouseReleased(e);
                 break;
         }
     }
@@ -191,12 +211,14 @@ public class MouseController extends MouseInputAdapter {
                 selection_mouseDragged(e);
                 break;
             case DRAG:    // Drag without the timer
-            case RECORD:
-                animate_mouseDragged(e);
+            case RECORD_DRAG:
+                drag_mouseDragged(e);
+                break;
+            case ROTATE:
+            case RECORD_ROTATE:
+                rotate_mouseDragged(e);
                 break;
         }
-
-        //view_.updateView();
     }
 
     // Update state according to mouse keys
@@ -204,32 +226,59 @@ public class MouseController extends MouseInputAdapter {
         switch (state_) {
             case SELECTION:
                 if ((e.getModifiers() &
-                     InputEvent.BUTTON1_MASK) == 0) {
-                    break;
-                }
-
-                if ((e.getModifiers() &
-                     InputEvent.CTRL_MASK) != 0) {
-                    Log.debug("Ctrl + Click pressed", 2);
-                    controller_.enableRecord();
+                     InputEvent.CTRL_MASK) != 0 &&
+                    (e.getModifiers() &
+                     InputEvent.BUTTON1_MASK) != 0) {
+                    Log.debug("Ctrl + Left Click pressed", 2);
+                    controller_.enableRecordDrag();
                 }
                 else if ((e.getModifiers() &
-                          InputEvent.SHIFT_MASK) != 0) {
-                    Log.debug("SHIFT + Click pressed", 2);
+                          InputEvent.CTRL_MASK) != 0 &&
+                         (e.getModifiers() &
+                          InputEvent.BUTTON3_MASK) != 0) {
+                    Log.debug("Ctrl + Right Click pressed", 2);
+                    controller_.enableRecordRotate();
+                }
+                else if ((e.getModifiers() &
+                          InputEvent.SHIFT_MASK) != 0 &&
+                         (e.getModifiers() &
+                          InputEvent.BUTTON1_MASK) != 0) {
+                    Log.debug("SHIFT + Left Click pressed", 2);
                     view_.enableDrag();
                 }
+                else if ((e.getModifiers() &
+                          InputEvent.SHIFT_MASK) != 0 &&
+                         (e.getModifiers() &
+                          InputEvent.BUTTON3_MASK) != 0) {
+                    view_.enableRotate();
+                    Log.debug("SHIFT + Right Click pressed", 2);
+                }
                 break;
-            case RECORD:
+            case RECORD_DRAG:
                 if ((e.getModifiers() &
                      InputEvent.BUTTON1_MASK) == 0) {
-                    Log.debug("Ctrl lifted", 2);
+                    Log.debug("Ctrl + Left Click lifted", 2);
+                    controller_.disableRecord();
+                }
+                break;
+            case RECORD_ROTATE:
+                if ((e.getModifiers() &
+                     InputEvent.BUTTON3_MASK) == 0) {
+                    Log.debug("Ctrl + Right Click lifted", 2);
                     controller_.disableRecord();
                 }
                 break;
             case DRAG:
                 if ((e.getModifiers() &
                      InputEvent.BUTTON1_MASK) == 0) {
-                    Log.debug("Shift lifted", 2);
+                    Log.debug("Shift + Left Click lifted", 2);
+                    controller_.disableRecord();
+                }
+                break;
+            case ROTATE:
+                if ((e.getModifiers() &
+                     InputEvent.BUTTON3_MASK) == 0) {
+                    Log.debug("Shift + Right Click lifted", 2);
                     controller_.disableRecord();
                 }
                 break;
@@ -311,8 +360,7 @@ public class MouseController extends MouseInputAdapter {
     }
 
     // Update current mouse location
-    // and prepare for animation
-    public void animate_mousePressed (MouseEvent e) {
+    public void drag_mousePressed (MouseEvent e) {
         Point2D newLoc = new Point2D.Double();
         newLoc.setLocation(e.getX(), e.getY());
         curLoc_ = newLoc;
@@ -320,12 +368,40 @@ public class MouseController extends MouseInputAdapter {
 
     // Move the selected objects
     // and update the timeline
-    public void animate_mouseDragged (MouseEvent e) {
+    public void drag_mouseDragged (MouseEvent e) {
         Point2D newLoc = new Point2D.Double();
         newLoc.setLocation(e.getX(), e.getY());
 
         controller_.move(curLoc_, newLoc);
 
+        curLoc_ = newLoc;
+    }
+
+    // Update current mouse location
+    // and update ancor location
+    public void rotate_mousePressed (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+        curLoc_   = newLoc;
+        ancorLoc_ = newLoc;
+    }
+
+    // Rotate the selected objects
+    // and update the timeline and the current mouse location
+    public void rotate_mouseDragged (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+
+        controller_.rotate(newLoc, curLoc_, ancorLoc_);
+
+        curLoc_ = newLoc;
+    }
+
+    // End of a rotate cycle
+    // Update current mouse location
+    public void rotate_mouseReleased (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
         curLoc_ = newLoc;
     }
 

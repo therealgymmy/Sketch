@@ -39,6 +39,7 @@ public class View extends    JPanel
     private void layoutView () {
         setSize(800, 600);
         setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
 
         // Initialize components
         toolbar_ = new Toolbar(this, controller_);
@@ -73,11 +74,16 @@ public class View extends    JPanel
         LineObjectCollection lineObjects
             = controller_.getLineObjects();
 
-        Paint.paint(g2d, lineObjects);
+        Paint.paint(g2d, this, lineObjects);
 
         // Draw the selection path
         Polygon selectionPath = controller_.getSelection();
         Paint.paintSelection(g2d, selectionPath);
+
+        // Draw ancor point if in rotate mode
+        if (mController_.getState() == MouseController.State.ROTATE) {
+            Paint.paintAncor(g2d, mController_.getAncor());
+        }
     }
 
     // --- State --- //
@@ -85,6 +91,11 @@ public class View extends    JPanel
     // => return the state the view is in
     public MouseController.State getState () {
         return mController_.getState();
+    }
+
+    // => return if recording
+    public boolean isRecording () {
+        return mController_.isRecording();
     }
 
     // Enable draw mode
@@ -108,14 +119,27 @@ public class View extends    JPanel
         mController_.updateCursor();
     }
 
+    // Enable drag mode
     public void enableDrag () {
         mController_.setState(MouseController.State.DRAG);
         mController_.updateCursor();
     }
 
-    // Enable record mode
-    public void enableRecord () {
-        mController_.setState(MouseController.State.RECORD);
+    // Enable rotate mode
+    public void enableRotate () {
+        mController_.setState(MouseController.State.ROTATE);
+        mController_.updateCursor();
+    }
+
+    // Enable drag record mode
+    public void enableRecordDrag () {
+        mController_.setState(MouseController.State.RECORD_DRAG);
+        mController_.updateCursor();
+    }
+
+    // Enable rotate record mode
+    public void enableRecordRotate () {
+        mController_.setState(MouseController.State.RECORD_ROTATE);
         mController_.updateCursor();
     }
 

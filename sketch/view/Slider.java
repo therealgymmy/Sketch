@@ -121,8 +121,7 @@ public class Slider extends JPanel
 
             curIndex_ = index;
 
-            if (view_.getState()
-                    != MouseController.State.RECORD) {
+            if (!view_.isRecording()) {
                 Log.debug("Load Frame at index " + index, 2);
                 controller_.loadFrame(index);
             }

@@ -31,13 +31,20 @@ public class Controller extends Object
 
     // --- View & Model Related Functions --- //
 
-    // Enable animation recording
-    public void enableRecord () {
-        view_.enableRecord();
+    // Enable animation drag recording
+    public void enableRecordDrag () {
+        view_.enableRecordDrag();
+        model_.enableRecord();
+    }
+
+    // Enable animation rotate recording
+    public void enableRecordRotate () {
+        view_.enableRecordRotate();
         model_.enableRecord();
     }
 
     // Disable animation recording
+    // And enable selection mode for view
     public void disableRecord () {
         view_.enableSelection();
         model_.disableRecord();
@@ -69,12 +76,15 @@ public class Controller extends Object
 
     // Update view settings
     public void updateViewSetting () {
+        // Update slider length
         int length = TimeLine.getFrameLength();
         view_.setSliderLength(length - 1);
 
+        // Update slider knot position
         int pos = TimeLine.getFrameIndex();
         view_.setSliderPointerPosition(pos);
 
+        // Update playback button setting
         if (model_.isPlaying()) {
             view_.enablePauseButton();
         }
@@ -166,6 +176,11 @@ public class Controller extends Object
     @Override
     public void move (Point2D start, Point2D end) {
         model_.move(start, end);
+    }
+
+    // Rotate selected objects around
+    public void rotate (Point2D start, Point2D end, Point2D ancor) {
+        model_.rotate(start, end, ancor);
     }
 
     public void loadFrame (int index) {

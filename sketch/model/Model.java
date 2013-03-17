@@ -57,6 +57,7 @@ public class Model extends    Object
     @Override
     public void eraseLine (Point2D start, Point2D end) {
         Line2D eraser = new Line2D.Double(start, end);
+
         objects_.erase(eraser);
 
         controller_.updateView();
@@ -67,7 +68,6 @@ public class Model extends    Object
     public void addNewObject () {
         Log.debug("Created a new line object", 2);
 
-        //lineObjects_.add(curLineObject_);
         objects_.add(curLineObject_);
 
         controller_.updateView();
@@ -134,6 +134,13 @@ public class Model extends    Object
     public void move (Point2D start, Point2D end) {
         objects_.moveSelection(start, end);
         
+        controller_.updateView();
+    }
+
+    // Rotate selected objects around
+    public void rotate (Point2D start, Point2D end, Point2D ancor) {
+        objects_.rotateSelection(start, end, ancor);
+
         controller_.updateView();
     }
 

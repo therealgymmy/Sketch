@@ -31,12 +31,14 @@ public class Paint {
 
     // Draw all the line objects
     public static void paint (Graphics2D           g2d,
+                              View                 view,
                               LineObjectCollection collection) {
         ArrayList<LineObject> objects = collection.getObjects();
 
         Stroke backupStroke = g2d.getStroke();
         for (LineObject object : objects) {
-            if (object.isSelected()) {
+            if (object.isSelected() &&
+                view.getState() != MouseController.State.PLAYBACK) {
                 g2d.setStroke(selectedStroke);
             }
             paint(g2d, object);
@@ -70,12 +72,28 @@ public class Paint {
 
     // Draw the selection path
     public static void paintSelection (Graphics2D g2d,
-                                       Polygon  poly) {
+                                       Polygon    poly) {
         Stroke backupStroke = g2d.getStroke();
 
         g2d.setStroke(selectionStroke);
         g2d.draw(poly);
         g2d.setStroke(backupStroke);
+    }
+
+    // Draw the ancor point
+    public static void paintAncor (Graphics2D g2d,
+                                   Point2D    ancor) {
+        if (ancor == null) {
+            Log.debug("Ancor is null");
+            return;
+        }
+
+        Rectangle2D rect
+            = new Rectangle2D.Double(ancor.getX() - 1,
+                                     ancor.getY() - 1,
+                                     2,
+                                     2);
+        g2d.draw(rect);
     }
 
 }

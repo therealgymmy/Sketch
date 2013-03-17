@@ -114,6 +114,7 @@ public class LineComponent {
     // Check if contained within a polygon
     public boolean isContainedIn (Polygon poly) {
         for (Line2D line : lines_) {
+            line = transform(line);
             if (!poly.contains(line.getP1()) ||
                 !poly.contains(line.getP2())) {
                 return false;

@@ -81,30 +81,6 @@ public class Controller extends Object
         else {
             view_.enablePlayButton();
         }
-
-        /*
-        if (model_.getFrameLength() > 0) {
-            // Update slider length
-            int size = model_.getFrameLength();
-            view_.setSliderLength(size - 1);
-
-
-            // Update slider pointer position
-            int pos = model_.getPlayFrameIndex();
-            view_.setSliderPointerPosition(pos);
-
-
-            // Update play button status
-            if (model_.isPlaying()) {
-                view_.enablePauseButton();
-            }
-            else {
-                view_.enablePlayButton();
-            }
-        }
-        else {
-        }
-        */
     }
 
     // Enable drawing

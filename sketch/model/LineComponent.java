@@ -111,17 +111,15 @@ public class LineComponent {
         return false;
     }
 
-
-    // Paint all the lines
-    public void paint (Graphics g) {
-        Graphics2D g2d = (Graphics2D)g;
-
-        AffineTransform backupTrans = g2d.getTransform();
-        g2d.setTransform(trans_);
+    // Check if contained within a polygon
+    public boolean isContainedIn (Polygon poly) {
         for (Line2D line : lines_) {
-            g2d.draw(line);
+            if (!poly.contains(line.getP1()) ||
+                !poly.contains(line.getP2())) {
+                return false;
+            }
         }
-        g2d.setTransform(backupTrans);
+        return true;
     }
 
     // Move from start to end

@@ -44,6 +44,10 @@ public class LineObject {
         return line_.intersects(poly);
     }
 
+    public boolean isContainedIn (Polygon poly) {
+        return line_.isContainedIn(poly);
+    }
+
     // --- Transform-related Operation --- //
 
     // => get current transform

@@ -56,7 +56,7 @@ public class LineObjectCollection {
     public void encloseSelection (Polygon poly) {
         for (LineObject lineObject : objects_) {
             if (lineObject.isVisible() &&
-                lineObject.intersects(poly)) {
+                lineObject.isContainedIn(poly)) {
                 lineObject.select();
             }
         }

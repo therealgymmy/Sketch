@@ -43,6 +43,12 @@ public class Controller extends Object
         model_.enableRecord();
     }
 
+    // Enable animation smart motion recording
+    public void enableRecordSmartMotion () {
+        view_.enableRecordSmartMotion();
+        model_.enableRecord();
+    }
+
     // Disable animation recording
     // And enable selection mode for view
     public void disableRecord () {
@@ -55,6 +61,7 @@ public class Controller extends Object
         if (!model_.isPlaying()) {
             model_.enablePlayback();
             view_.enablePlayback();
+            updateViewSetting();
         }
     }
 
@@ -63,6 +70,7 @@ public class Controller extends Object
         if (model_.isPlaying()) {
             model_.disablePlayback();
             view_.enablePlayButton();
+            updateViewSetting();
         }
     }
 
@@ -87,9 +95,11 @@ public class Controller extends Object
         // Update playback button setting
         if (model_.isPlaying()) {
             view_.enablePauseButton();
+            view_.disableInsertButton();
         }
         else {
             view_.enablePlayButton();
+            view_.enableInsertButton();
         }
     }
 
@@ -181,6 +191,13 @@ public class Controller extends Object
     // Rotate selected objects around
     public void rotate (Point2D start, Point2D end, Point2D ancor) {
         model_.rotate(start, end, ancor);
+    }
+
+    // Move and rotate at the same time
+    public void smart_motion (Point2D start,
+                              Point2D end,
+                              Point2D ancor) {
+        model_.smart_motion(start, end, ancor);
     }
 
     public void loadFrame (int index) {

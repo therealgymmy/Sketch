@@ -33,6 +33,9 @@ public class View extends    JPanel
 
         // Set focus
         requestFocusInWindow();
+
+        // Set default to draw
+        enableDraw();
     }
 
     // Initialize view layout and view components
@@ -81,7 +84,12 @@ public class View extends    JPanel
         Paint.paintSelection(g2d, selectionPath);
 
         // Draw ancor point if in rotate mode
-        if (mController_.getState() == MouseController.State.ROTATE) {
+        if (mController_.getState()
+                == MouseController.State.ROTATE ||
+            mController_.getState()
+                == MouseController.State.RECORD_ROTATE ||
+             mController_.getState()
+                == MouseController.State.RECORD_SMART_MOTION) {
             Paint.paintAncor(g2d, mController_.getAncor());
         }
     }
@@ -101,6 +109,7 @@ public class View extends    JPanel
     // Enable draw mode
     @Override
     public void enableDraw () {
+        toolbar_.enableDrawButton();
         mController_.setState(MouseController.State.DRAW);
         mController_.updateCursor();
     }
@@ -108,6 +117,7 @@ public class View extends    JPanel
     // Enable erase mode
     @Override
     public void enableErase () {
+        toolbar_.enableEraseButton();
         mController_.setState(MouseController.State.ERASE);
         mController_.updateCursor();
     }
@@ -115,6 +125,7 @@ public class View extends    JPanel
     // Enable selection mode
     @Override
     public void enableSelection () {
+        toolbar_.enableSelectButton();
         mController_.setState(MouseController.State.SELECTION);
         mController_.updateCursor();
     }
@@ -140,6 +151,13 @@ public class View extends    JPanel
     // Enable rotate record mode
     public void enableRecordRotate () {
         mController_.setState(MouseController.State.RECORD_ROTATE);
+        mController_.updateCursor();
+    }
+
+    // Enable smart motion record mode
+    public void enableRecordSmartMotion () {
+        mController_.setState(
+                MouseController.State.RECORD_SMART_MOTION);
         mController_.updateCursor();
     }
 
@@ -170,6 +188,16 @@ public class View extends    JPanel
     // => turn on pause button
     public void enablePauseButton () {
         slider_.enablePauseButton();
+    }
+
+    // => turn on insert button
+    public void enableInsertButton () {
+        slider_.enableInsertButton();
+    }
+
+    // => turn off insert button
+    public void disableInsertButton () {
+        slider_.disableInsertButton();
     }
 
 }

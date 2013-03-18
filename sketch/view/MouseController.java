@@ -23,6 +23,7 @@ public class MouseController extends MouseInputAdapter {
 
         RECORD_DRAG,
         RECORD_ROTATE,
+        RECORD_SMART_MOTION,
 
         PLAYBACK,
     }
@@ -93,7 +94,8 @@ public class MouseController extends MouseInputAdapter {
 
     public boolean isRecording () {
         return state_ == State.RECORD_DRAG ||
-               state_ == State.RECORD_ROTATE;
+               state_ == State.RECORD_ROTATE ||
+               state_ == State.RECORD_SMART_MOTION;
     }
 
     public void setRecordDrag (boolean cond) {
@@ -126,6 +128,7 @@ public class MouseController extends MouseInputAdapter {
                 break;
             case RECORD_DRAG:
             case RECORD_ROTATE:
+            case RECORD_SMART_MOTION:
                 view_.setCursor(animateCursor_);
                 break;
             case PLAYBACK:
@@ -159,6 +162,9 @@ public class MouseController extends MouseInputAdapter {
             case RECORD_ROTATE:
                 rotate_mousePressed(e);
                 break;
+            case RECORD_SMART_MOTION:
+                smart_motion_mousePressed(e);
+                break;
         }
     }
 
@@ -184,6 +190,9 @@ public class MouseController extends MouseInputAdapter {
             case ROTATE:
             case RECORD_ROTATE:
                 rotate_mouseReleased(e);
+                break;
+            case RECORD_SMART_MOTION:
+                smart_motion_mouseReleased(e);
                 break;
         }
     }
@@ -218,6 +227,9 @@ public class MouseController extends MouseInputAdapter {
             case RECORD_ROTATE:
                 rotate_mouseDragged(e);
                 break;
+            case RECORD_SMART_MOTION:
+                smart_motion_mouseDragged(e);
+                break;
         }
     }
 
@@ -238,6 +250,13 @@ public class MouseController extends MouseInputAdapter {
                           InputEvent.BUTTON3_MASK) != 0) {
                     Log.debug("Ctrl + Right Click pressed", 2);
                     controller_.enableRecordRotate();
+                }
+                else if ((e.getModifiers() &
+                          InputEvent.ALT_MASK) != 0 &&
+                         (e.getModifiers() &
+                          InputEvent.BUTTON1_MASK) != 0) {
+                    controller_.enableRecordSmartMotion();
+                    Log.debug("ALT + Left Click pressed", 2);
                 }
                 else if ((e.getModifiers() &
                           InputEvent.SHIFT_MASK) != 0 &&
@@ -265,6 +284,13 @@ public class MouseController extends MouseInputAdapter {
                 if ((e.getModifiers() &
                      InputEvent.BUTTON3_MASK) == 0) {
                     Log.debug("Ctrl + Right Click lifted", 2);
+                    controller_.disableRecord();
+                }
+                break;
+            case RECORD_SMART_MOTION:
+                if ((e.getModifiers() &
+                     InputEvent.BUTTON1_MASK) == 0) {
+                    Log.debug("ALT + Left Click lifted", 2);
                     controller_.disableRecord();
                 }
                 break;
@@ -400,6 +426,45 @@ public class MouseController extends MouseInputAdapter {
     // End of a rotate cycle
     // Update current mouse location
     public void rotate_mouseReleased (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+        curLoc_ = newLoc;
+    }
+
+    // Update current mouse location
+    public void smart_motion_mousePressed (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+        curLoc_   = newLoc;
+        ancorLoc_ = newLoc;
+    }
+
+    // Move the selected objects
+    // and update the timeline
+    public void smart_motion_mouseDragged (MouseEvent e) {
+        Point2D newLoc = new Point2D.Double();
+        newLoc.setLocation(e.getX(), e.getY());
+
+        controller_.smart_motion(newLoc, curLoc_, ancorLoc_);
+
+        // Update ancor
+        Point2D diff
+            = new Point2D.Double(newLoc.getX() - curLoc_.getX(),
+                                 newLoc.getY() - curLoc_.getY());
+
+        /*
+        ancorLoc_.setLocation(
+                ancorLoc_.getX() + diff.getX(),
+                ancorLoc_.getY() + diff.getY()
+                );
+                */
+
+        curLoc_ = newLoc;
+    }
+
+    // End of a rotate cycle
+    // Update current mouse location
+    public void smart_motion_mouseReleased (MouseEvent e) {
         Point2D newLoc = new Point2D.Double();
         newLoc.setLocation(e.getX(), e.getY());
         curLoc_ = newLoc;

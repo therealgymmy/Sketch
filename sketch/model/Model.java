@@ -144,6 +144,15 @@ public class Model extends    Object
         controller_.updateView();
     }
 
+    // Move and rotate at the same time
+    public void smart_motion (Point2D start,
+                              Point2D end,
+                              Point2D ancor) {
+        objects_.smartMoveSelection(start, end, ancor);
+
+        controller_.updateView();
+    }
+
     // --- TimeLine Operations --- //
 
     // => insert a copy of current frames before next frame

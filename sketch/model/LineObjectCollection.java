@@ -89,6 +89,17 @@ public class LineObjectCollection {
         }
     }
 
+    // Move and rotate at the same time
+    public void smartMoveSelection (Point2D start,
+                                    Point2D end,
+                                    Point2D ancor) {
+        for (LineObject lineObject : objects_) {
+            if (lineObject.isSelected()) {
+                lineObject.smartMove(start, end, ancor);
+            }
+        }
+    }
+
     // --- TimeLine Operations --- //
 
     // => insert a copy of current frames before next frame

@@ -103,6 +103,16 @@ public class Slider extends JPanel
         pauseButton_.setEnabled(true);
     }
 
+    // Enable insert button
+    public void enableInsertButton () {
+        insertButton_.setEnabled(true);
+    }
+
+    // Disable insert button
+    public void disableInsertButton () {
+        insertButton_.setEnabled(false);
+    }
+
     // Change the maximum value of the slider
     public void setSliderLength (int length) {
         slider_.setMaximum(length);

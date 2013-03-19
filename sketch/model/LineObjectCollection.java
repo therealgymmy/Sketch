@@ -16,6 +16,10 @@ public class LineObjectCollection {
         return objects_;
     }
 
+    public void clear () {
+        objects_.clear();
+    }
+
     public void changeSelectionColor (Color color) {
         for (LineObject lineObject : objects_) {
             if (lineObject.isSelected()) {

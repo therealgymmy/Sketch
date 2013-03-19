@@ -24,6 +24,10 @@ public class LineComponent {
         return c;
     }
 
+    public void clear () {
+        lines_.clear();
+    }
+
     public boolean isSelected () {
         return isSelected_;
     }

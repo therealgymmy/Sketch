@@ -10,8 +10,7 @@ import javax.swing.event.*;
 import sketch.common.*;
 import sketch.controller.*;
 
-public class Model extends    Object
-                   implements IModel {
+public class Model extends Object {
 
     private Controller controller_;
 
@@ -36,6 +35,16 @@ public class Model extends    Object
         timeControl_   = new TimeLineControl(this, controller);
     }
 
+    // Clear everything
+    public void clearAll () {
+        curLineObject_.clear();
+        objects_.clear();
+        timeControl_.resetRecordTimer();
+        timeControl_.resetPlayTimer();
+        TimeLine.setFrameIndex(0);
+        TimeLine.setFrameLength(1);
+    }
+
     // Change color
     public void changeColor (Color color) {
         objects_.changeSelectionColor(color);
@@ -43,7 +52,6 @@ public class Model extends    Object
     }
 
     // Get the selection path
-    @Override
     public Polygon getSelection () {
         return selection_;
     }
@@ -54,13 +62,11 @@ public class Model extends    Object
     }
 
     // Erase a line that the point it draws touches
-    @Override
     public void eraseLine (Point2D point) {
         // Do nothing
     }
 
     // Erase a line that the line it draws crosses
-    @Override
     public void eraseLine (Point2D start, Point2D end) {
         Line2D eraser = new Line2D.Double(start, end);
 
@@ -70,7 +76,6 @@ public class Model extends    Object
     }
 
     // Add a new lineObject to the linked list
-    @Override
     public void addNewObject () {
         Log.debug("Created a new line object", 2);
 
@@ -80,7 +85,6 @@ public class Model extends    Object
     }
 
     // Add a new line
-    @Override
     public void addLine (Point2D start, Point2D end) {
         curLineObject_.addLine(start, end);
 
@@ -88,7 +92,6 @@ public class Model extends    Object
     }
 
     // Create a new lineObject
-    @Override
     public void finalizeNewObject () {
         Log.debug("Finalized a new line object", 2);
 
@@ -98,7 +101,6 @@ public class Model extends    Object
     }
 
     // Clear all previously selected line objects
-    @Override
     public void addNewSelection () {
         Log.debug("Started a new selection", 2);
 
@@ -109,17 +111,9 @@ public class Model extends    Object
 
     // Enclose a selection on line objects
     // and create a new selection for next time
-    @Override
     public void encloseSelection () {
         Log.debug("Closed the selection", 2);
 
-        /*
-        for (LineComponent lineObject : lineObjects_) {
-            if (lineObject.intersects(selection_)) {
-                lineObject.setIsSelected(true);
-            }
-        }
-        */
         objects_.encloseSelection(selection_);
 
         selection_ = new Polygon();
@@ -128,7 +122,6 @@ public class Model extends    Object
     }
 
     // Extend a selection
-    @Override
     public void extendSelection (Point2D start, Point2D end) {
         selection_.addPoint((int)end.getX(), (int)end.getY());
 
@@ -136,7 +129,6 @@ public class Model extends    Object
     }
 
     // Move selected objects around
-    @Override
     public void move (Point2D start, Point2D end) {
         objects_.moveSelection(start, end);
         

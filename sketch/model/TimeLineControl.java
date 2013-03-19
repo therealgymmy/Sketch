@@ -20,10 +20,6 @@ public class TimeLineControl {
     private ActionListener    recordAction_;
     private int               recordInterval_ = 33;
 
-    private javax.swing.Timer insertTimer_;
-    private ActionListener    insertAction_;
-    private int               insertInterval_ = 33;
-
     private javax.swing.Timer playTimer_;
     private ActionListener    playAction_;
     private int               playInterval_ = 33;
@@ -34,11 +30,6 @@ public class TimeLineControl {
 
         initRecordAction();
         resetRecordTimer();
-
-        /*
-        initInsertAction();
-        resetInsertTimer();
-        */
 
         initPlayAction();
         resetPlayTimer();
@@ -61,7 +52,10 @@ public class TimeLineControl {
     }
 
     // => create a new record timer
-    private void resetRecordTimer () {
+    public void resetRecordTimer () {
+        if (recordTimer_ != null) {
+            recordTimer_.stop();
+        }
         recordTimer_ = new javax.swing.Timer(recordInterval_,
                                              recordAction_);
     }
@@ -119,7 +113,10 @@ public class TimeLineControl {
     }
 
     // => create a new play timer
-    private void resetPlayTimer () {
+    public void resetPlayTimer () {
+        if (playTimer_ != null) {
+            playTimer_.stop();
+        }
         playTimer_ = new javax.swing.Timer(playInterval_,
                                            playAction_);
     }

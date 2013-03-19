@@ -74,6 +74,7 @@ public class Slider extends JPanel
         clearButton_.addActionListener(new ActionListener () {
             public void actionPerformed (ActionEvent e) {
                 Log.debug("Clear button was clicked!", 2);
+                controller_.clearAll();
             }
         });
         toolbar.add(clearButton_);

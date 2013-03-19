@@ -10,9 +10,7 @@ import javax.swing.event.*;
 import sketch.model.*;
 import sketch.view.*;
 
-public class Controller extends Object
-                        implements IView,
-                                   IModel {
+public class Controller extends Object {
 
     private View  view_;
     private Model model_;
@@ -30,6 +28,13 @@ public class Controller extends Object
     }
 
     // --- View & Model Related Functions --- //
+
+    // Clear everything so you can start from scratch
+    public void clearAll () {
+        model_.clearAll();
+        updateView();
+        updateViewSetting();
+    }
 
     // Enable animation drag recording
     public void enableRecordDrag () {
@@ -77,7 +82,6 @@ public class Controller extends Object
     // --- View Related Functions --- //
 
     // Refresh
-    @Override
     public void updateView () {
         view_.updateView();
     }
@@ -104,19 +108,16 @@ public class Controller extends Object
     }
 
     // Enable drawing
-    @Override
     public void enableDraw () {
         view_.enableDraw();
     }
 
     // Enable erasing
-    @Override
     public void enableErase () {
         view_.enableErase();
     }
 
     // Enable selection
-    @Override
     public void enableSelection () {
         view_.enableSelection();
     }
@@ -129,7 +130,6 @@ public class Controller extends Object
     }
 
     // Get the selection path
-    @Override
     public Polygon getSelection () {
         return model_.getSelection();
     }
@@ -140,55 +140,46 @@ public class Controller extends Object
     }
 
     // Add a new line
-    @Override
     public void addLine (Point2D start, Point2D end) {
         model_.addLine(start, end);
     }
 
     // Erase a line that the point it draws touches
-    @Override
     public void eraseLine (Point2D point) {
         model_.eraseLine(point);
     }
 
     // Erase a line that the line it draws crosses
-    @Override
     public void eraseLine (Point2D start, Point2D end) {
         model_.eraseLine(start, end);
     }
 
     // Add a new lineObject to the linked list
-    @Override
     public void addNewObject () {
         model_.addNewObject();
     }
 
     // Create a new lineObject
-    @Override
     public void finalizeNewObject () {
         model_.finalizeNewObject();
     }
 
     // Create a new selection
-    @Override
     public void addNewSelection () {
         model_.addNewSelection();
     }
 
     // Enclose a selection on line objects
-    @Override
     public void encloseSelection () {
         model_.encloseSelection();
     }
 
     // Extend a selection
-    @Override
     public void extendSelection (Point2D start, Point2D end) {
         model_.extendSelection(start, end);
     }
 
     // Move selected objects around
-    @Override
     public void move (Point2D start, Point2D end) {
         model_.move(start, end);
     }

@@ -9,14 +9,12 @@ CLASSES = \
 		  sketch/common/Config.java \
 		  sketch/common/Log.java \
 		  sketch/controller/Controller.java \
-		  sketch/model/IModel.java \
 		  sketch/model/LineComponent.java \
 		  sketch/model/LineObject.java \
 		  sketch/model/LineObjectCollection.java \
 		  sketch/model/Model.java \
 		  sketch/model/TimeLine.java \
 		  sketch/model/TimeLineControl.java \
-		  sketch/view/IView.java \
 		  sketch/view/MouseController.java \
 		  sketch/view/Paint.java \
 		  sketch/view/Slider.java \

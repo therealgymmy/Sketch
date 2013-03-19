@@ -55,10 +55,16 @@ public class Paint {
         }
 
         AffineTransform backupTrans = g2d.getTransform();
+        Color           backupColor = g2d.getColor();
+
         AffineTransform trans = object.getCurrentTransform();
         
         g2d.setTransform(trans);
+        g2d.setColor(object.getColor());
+
         paint(g2d, object.getLineComponent());
+
+        g2d.setColor(backupColor);
         g2d.setTransform(backupTrans);
     }
 

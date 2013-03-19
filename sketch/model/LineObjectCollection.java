@@ -16,6 +16,14 @@ public class LineObjectCollection {
         return objects_;
     }
 
+    public void changeSelectionColor (Color color) {
+        for (LineObject lineObject : objects_) {
+            if (lineObject.isSelected()) {
+                lineObject.changeColor(color);
+            }
+        }
+    }
+
     // --- Add/Remove --- //
 
     // => add a new LineComponent

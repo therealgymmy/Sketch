@@ -123,6 +123,11 @@ public class Controller extends Object
 
     // --- Model Related Functions --- //
 
+    // Change color
+    public void changeColor (Color color) {
+        model_.changeColor(color);
+    }
+
     // Get the selection path
     @Override
     public Polygon getSelection () {

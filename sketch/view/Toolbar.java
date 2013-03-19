@@ -15,6 +15,7 @@ public class Toolbar extends JPanel {
     private JButton draw_;
     private JButton erase_;
     private JButton select_;
+    private JButton color_;
 
     private Color pressedButtonColor = new Color(184, 207, 229);
 
@@ -41,6 +42,17 @@ public class Toolbar extends JPanel {
         view_.enableSelection();
         view_.requestFocusInWindow();
         controller_.pauseAnimation();
+    }
+
+    public void colorButtonPressed () {
+        Color color = JColorChooser.showDialog(
+                this,
+                "Choose Color",
+                null);
+        if (color != null) {
+            controller_.changeColor(color);
+            color_.setBackground(color);
+        }
     }
 
     public void enableDrawButton () {
@@ -98,6 +110,17 @@ public class Toolbar extends JPanel {
             }
         });
         toolbar.add(select_);
+
+        // Color button
+        color_ = new JButton("     ");
+        color_.setBackground(Color.BLACK);
+        color_.addActionListener(new ActionListener () {
+            public void actionPerformed (ActionEvent e) {
+                Log.debug("Color Picker button was clicked!");
+                colorButtonPressed();
+            }
+        });
+        toolbar.add(color_);
 
         // Set default cursor
         Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);

@@ -36,6 +36,12 @@ public class Model extends    Object
         timeControl_   = new TimeLineControl(this, controller);
     }
 
+    // Change color
+    public void changeColor (Color color) {
+        objects_.changeSelectionColor(color);
+        LineObject.DEFAULT_COLOR = color;
+    }
+
     // Get the selection path
     @Override
     public Polygon getSelection () {

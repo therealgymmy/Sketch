@@ -11,12 +11,15 @@ import sketch.common.*;
 
 public class LineObject {
 
+    public static Color DEFAULT_COLOR = Color.BLACK;
+
     // --- Core Components --- //
     private final TimeLine      time_ = new TimeLine();
     private final LineComponent line_;
 
     private boolean         isSelected_ = false;
     private AffineTransform transform_  = new AffineTransform();
+    private Color           color_      = DEFAULT_COLOR;
 
     public LineObject () {
         line_ = new LineComponent();
@@ -24,6 +27,14 @@ public class LineObject {
 
     public LineObject (LineComponent line) {
         line_ = line;
+    }
+
+    public void changeColor (Color color) {
+        color_ = color;
+    }
+
+    public Color getColor () {
+        return color_;
     }
 
     // --- Selection Operations --- //

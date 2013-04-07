@@ -7,6 +7,22 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import sketch.common.*;
 
 public class LineObject {
@@ -14,7 +30,7 @@ public class LineObject {
     public static Color DEFAULT_COLOR = Color.BLACK;
 
     // --- Core Components --- //
-    private final TimeLine      time_ = new TimeLine();
+    private final TimeLine      time_;
     private final LineComponent line_;
 
     private boolean         isSelected_ = false;
@@ -22,11 +38,23 @@ public class LineObject {
     private Color           color_      = DEFAULT_COLOR;
 
     public LineObject () {
+        time_ = new TimeLine();
         line_ = new LineComponent();
     }
 
     public LineObject (LineComponent line) {
+        time_ = new TimeLine();
         line_ = line;
+    }
+
+    public LineObject (Element element) {
+        NodeList components = element.getElementsByTagName("line_component");
+        LineComponent line = deserializeLine((Element)components.item(0));
+        line_ = line;
+
+        NodeList timelines = element.getElementsByTagName("timeline");
+        TimeLine time = deserializeTimeLine((Element)timelines.item(0));
+        time_ = time;
     }
 
     public void changeColor (Color color) {
@@ -254,6 +282,36 @@ public class LineObject {
         else {
             return false;
         }
+    }
+
+    // --- Serialization --- //
+    
+    // -> serliaze all data
+    public void serialize (Element root, Document doc) {
+        Element tag = doc.createElement("line_object");
+        root.appendChild(tag);
+
+        // serialize line component
+        line_.serialize(tag, doc);
+
+        // serialize time line
+        time_.serialize(tag, doc);
+    }
+
+    // -> deserialize LineComponent
+    public LineComponent deserializeLine (Element element) {
+        Log.debug("deserializing LineComponent", 2);
+        LineComponent line = new LineComponent();
+        line.deserialize(element);
+        return line;
+    }
+
+    // -> deserialize TimeLine
+    public TimeLine deserializeTimeLine (Element element) {
+        Log.debug("deserializing TimeLIne", 2);
+        TimeLine time = new TimeLine();
+        time.deserialize(element);
+        return time;
     }
 
 }

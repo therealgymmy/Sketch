@@ -7,10 +7,28 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 public class LineObjectCollection {
 
     private final ArrayList<LineObject> objects_
         = new ArrayList<LineObject>();
+
+    // --- Misc --- //
 
     public ArrayList<LineObject> getObjects () {
         return objects_;
@@ -147,6 +165,27 @@ public class LineObjectCollection {
             if (lineObject.isVisible()) {
                 lineObject.loadFrame(index);
             }
+        }
+    }
+
+    // --- Serialization --- //
+    
+    // -> serliaze all data
+    public void serialize (Element root, Document doc) {
+        Element tag = doc.createElement("line_object_collection");
+        root.appendChild(tag);
+
+        for (LineObject obj : objects_) {
+            obj.serialize(tag, doc);
+        }
+    }
+
+    // -> deserialize all data
+    public void deserialize (Element objectsTag) {
+        NodeList objList = objectsTag.getElementsByTagName("line_object");
+        for (int i = 0; i < objList.getLength(); ++i) {
+            Node node = objList.item(i);
+            objects_.add(new LineObject((Element)node));
         }
     }
 

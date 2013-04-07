@@ -124,6 +124,16 @@ public class Controller extends Object {
 
     // --- Model Related Functions --- //
 
+    // Save data to disk
+    public void save (String filename) {
+        model_.save(filename);
+    }
+
+    // Load data from disk
+    public void load (String filename) {
+        model_.load(filename);
+    }
+
     // Change color
     public void changeColor (Color color) {
         model_.changeColor(color);

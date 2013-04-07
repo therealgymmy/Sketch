@@ -7,6 +7,22 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import sketch.common.*;
 import sketch.controller.*;
 
@@ -21,6 +37,8 @@ public class Model extends Object {
         = new LineObjectCollection();
 
     private final TimeLineControl timeControl_;
+
+    private Serialization serial_ = new Serialization();
 
     public Model (Controller controller) {
         super();
@@ -209,5 +227,113 @@ public class Model extends Object {
     public void disablePlayback () {
         timeControl_.stopPlay();
     }
+
+    // --- I/O Operations --- //
+
+    // => save to disk
+    public void save (String filename) {
+        File file = new File(filename);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            file.createNewFile();
+        }
+        catch (Exception e) {
+        }
+
+
+        try {
+            Document doc = serial_.serialize();
+
+            // write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(file);
+
+            // Output to console for testing
+            // StreamResult result = new StreamResult(System.out);
+
+            transformer.transform(source, result);
+
+            System.out.println("File saved!");
+
+        } catch (TransformerException tfe) {
+            tfe.printStackTrace();
+        }
+    }
+
+    // => load from disk
+    public void load (String filename) {
+        // First clear all data
+        controller_.clearAll();
+
+        File file = new File(filename);
+        serial_.deserialize(file);
+
+        loadFrame(0);
+        controller_.updateViewSetting();
+    }
+
+private class Serialization {
+
+    private DocumentBuilderFactory docFactory_;
+    private DocumentBuilder        docBuilder_;
+
+    Serialization () {
+        try {
+            docFactory_ = DocumentBuilderFactory.newInstance();
+            docBuilder_ = docFactory_.newDocumentBuilder();
+        }
+        catch (Exception e) {
+        }
+    }
+
+    // Serialize all line objects
+    // and return in the form of xml document
+    public Document serialize () {
+        Document doc = docBuilder_.newDocument();
+
+        // root
+        Element root = doc.createElement("sketch_data");
+        doc.appendChild(root);
+
+        // frame length
+        Element frameTag = doc.createElement("frame_length");
+        frameTag.appendChild(
+                doc.createTextNode(Integer.toString(TimeLine.getFrameLength())));
+        root.appendChild(frameTag);
+
+        // LineObjectCollection
+        objects_.serialize(root, doc);
+
+        return doc;
+    }
+
+    // Deserialize and restore all data
+    public void deserialize (File file) {
+        try {
+            Document doc = docBuilder_.parse(file);
+            doc.getDocumentElement().normalize();
+
+            // deserialize frame length
+            Element frameTag =
+                (Element)doc.getElementsByTagName("frame_length").item(0);
+            TimeLine.setFrameLength(
+                    Integer.parseInt(
+                        frameTag.getChildNodes().item(0).getNodeValue()
+                        ));
+
+            // deserialize LineObjectCollection
+            NodeList list = doc.getElementsByTagName("line_object_collection");
+            objects_.deserialize((Element)list.item(0));
+        }
+        catch (Exception e) {
+            Log.debug("cannot deserialize", 2);
+        }
+    }
+
+}
 
 }

@@ -17,6 +17,9 @@ public class Toolbar extends JPanel {
     private JButton select_;
     private JButton color_;
 
+    private JButton save_;
+    private JButton load_;
+
     private Color pressedButtonColor = new Color(184, 207, 229);
 
     public Toolbar (View view, Controller controller) {
@@ -42,6 +45,14 @@ public class Toolbar extends JPanel {
         view_.enableSelection();
         view_.requestFocusInWindow();
         controller_.pauseAnimation();
+    }
+
+    public void saveButtonPressed () {
+        controller_.save("save.xml");
+    }
+
+    public void loadButtonPressed () {
+        controller_.load("save.xml");
     }
 
     public void colorButtonPressed () {
@@ -121,6 +132,26 @@ public class Toolbar extends JPanel {
             }
         });
         toolbar.add(color_);
+
+        // Save button
+        save_ = new JButton("Save");
+        save_.addActionListener(new ActionListener () {
+            public void actionPerformed (ActionEvent e) {
+                Log.debug("Save button was clicked!");
+                saveButtonPressed();
+            }
+        });
+        toolbar.add(save_);
+
+        // Load button
+        load_ = new JButton("Load");
+        load_.addActionListener(new ActionListener () {
+            public void actionPerformed (ActionEvent e) {
+                Log.debug("Load button was clicked!");
+                loadButtonPressed();
+            }
+        });
+        toolbar.add(load_);
 
         // Set default cursor
         Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);

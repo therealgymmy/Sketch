@@ -3,6 +3,7 @@ package sketch.controller;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.io.File;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -129,9 +130,17 @@ public class Controller extends Object {
         model_.save(filename);
     }
 
+    public void save (File file) {
+        model_.save(file);
+    }
+
     // Load data from disk
     public void load (String filename) {
         model_.load(filename);
+    }
+
+    public void load (File file) {
+        model_.load(file);
     }
 
     // Change color

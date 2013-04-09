@@ -264,12 +264,44 @@ public class Model extends Object {
         }
     }
 
+    public void save (File file) {
+        try {
+            Document doc = serial_.serialize();
+
+            // write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(file);
+
+            // Output to console for testing
+            // StreamResult result = new StreamResult(System.out);
+
+            transformer.transform(source, result);
+
+            System.out.println("File saved!");
+
+        } catch (TransformerException tfe) {
+            tfe.printStackTrace();
+        }
+    }
+
     // => load from disk
     public void load (String filename) {
         // First clear all data
         controller_.clearAll();
 
         File file = new File(filename);
+        serial_.deserialize(file);
+
+        loadFrame(0);
+        controller_.updateViewSetting();
+    }
+
+    public void load (File file) {
+        // First clear all data
+        controller_.clearAll();
+
         serial_.deserialize(file);
 
         loadFrame(0);

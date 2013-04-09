@@ -2,6 +2,7 @@ package sketch.view;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import javax.swing.*;
 
 import sketch.common.*;
@@ -20,11 +21,17 @@ public class Toolbar extends JPanel {
     private JButton save_;
     private JButton load_;
 
+    private JFileChooser fc_;
+
     private Color pressedButtonColor = new Color(184, 207, 229);
 
     public Toolbar (View view, Controller controller) {
         view_       = view;
         controller_ = controller;
+
+        fc_ = new JFileChooser();
+        fc_.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc_.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         layoutView();
     }
@@ -48,11 +55,25 @@ public class Toolbar extends JPanel {
     }
 
     public void saveButtonPressed () {
-        controller_.save("save.xml");
+        int returnVal = fc_.showSaveDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc_.getSelectedFile();
+            //This is where a real application would open the file.
+            controller_.save(file);
+        } else {
+        }
     }
 
     public void loadButtonPressed () {
-        controller_.load("save.xml");
+        int returnVal = fc_.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc_.getSelectedFile();
+            //This is where a real application would open the file.
+            controller_.load(file);
+        } else {
+        }
     }
 
     public void colorButtonPressed () {
